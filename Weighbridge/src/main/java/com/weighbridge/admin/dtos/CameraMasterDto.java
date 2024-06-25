@@ -15,7 +15,7 @@ public class CameraMasterDto {
     private String frontCamUrl3;
     private String backCamUrl4;
     private String leftCamUrl5;
-    private String RightCamUrl6;
+    private String rightCamUrl6;
     private String createdBy;
     private String modifiedBy;
     private LocalDateTime createdDate;
