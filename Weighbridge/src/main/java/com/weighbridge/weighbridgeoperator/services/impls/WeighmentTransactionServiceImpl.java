@@ -471,8 +471,8 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
                     .orElseThrow(() -> new IllegalStateException("No roles found for userId: " + userId));
 
 
-            Map<String, byte[]> inMap = cameraViewService.downloadImages(ticketNo, role, gateEntryTransaction.getCompanyId(), gateEntryTransaction.getSiteId(),"IN");
-            Map<String, byte[]> outMap = cameraViewService.downloadImages(ticketNo, role, gateEntryTransaction.getCompanyId(), gateEntryTransaction.getSiteId(),"OUT");
+            Map<String, byte[]> inMap = cameraViewService.downloadImages(ticketNo, role, gateEntryTransaction.getCompanyId(), gateEntryTransaction.getSiteId(),"ENTRY");
+            Map<String, byte[]> outMap = cameraViewService.downloadImages(ticketNo, role, gateEntryTransaction.getCompanyId(), gateEntryTransaction.getSiteId(),"EXIT");
 
             TicketImageResponse ticketImageResponse = new TicketImageResponse();
             ticketImageResponse.setTicketResponse(ticketResponse);
@@ -514,8 +514,6 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
 
             weighmentTransactionResponse.setTransporterName(transporterMasterRepository.findTransporterNameByTransporterId(weighmentTransaction.getGateEntryTransaction().getTransporterId()));
             weighmentTransactionResponses.add(weighmentTransactionResponse);
-
-
         }
         long count = weighmentTransactionRepository.countCompletedTransactions();
         WeighbridgePageResponse weighbridgePageResponse=new WeighbridgePageResponse();

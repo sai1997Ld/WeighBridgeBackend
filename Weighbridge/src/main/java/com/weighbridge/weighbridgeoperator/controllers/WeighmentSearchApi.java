@@ -82,5 +82,4 @@ public class WeighmentSearchApi {
         WeighbridgePageResponse allBySearchFields = weighmentSearchApiService.getAllBySearchFieldsForInprocessTransaction(criteria, pageable,userId);
         return ResponseEntity.ok(allBySearchFields);
     }
-
 }
