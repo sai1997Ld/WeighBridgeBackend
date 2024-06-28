@@ -1193,6 +1193,7 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
     public GateEntryPrint getPrintTicketWise(Integer ticketNo) {
         GateEntryTransaction gateEntryTransaction = gateEntryTransactionRepository.findByTicketNo(ticketNo);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         GateEntryPrint gateEntryPrint = new GateEntryPrint();
         if (gateEntryTransaction != null) {
             gateEntryPrint.setTicketNo(ticketNo);
@@ -1202,7 +1203,7 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
             gateEntryPrint.setPoNo(gateEntryTransaction.getPoNo());
             gateEntryPrint.setTpNetWeight(gateEntryTransaction.getSupplyConsignmentWeight());
             gateEntryPrint.setTpNo(gateEntryTransaction.getTpNo());
-            gateEntryPrint.setTransactionDate(gateEntryTransaction.getTransactionDate() != null ? String.valueOf(gateEntryTransaction.getTransactionDate()) : "");
+            gateEntryPrint.setTransactionDate(gateEntryTransaction.getTransactionDate() != null ? String.valueOf(gateEntryTransaction.getTransactionDate().format(dateFormatter)) : "");
             gateEntryPrint.setVehicleNo(vehicleMasterRepository.findVehicleNoById(gateEntryTransaction.getVehicleId()));
             gateEntryPrint.setVehicleIn(gateEntryTransaction.getVehicleIn() != null ? gateEntryTransaction.getVehicleIn().format(formatter) : "");
             gateEntryPrint.setVehicleOut(gateEntryTransaction.getVehicleOut() != null ? gateEntryTransaction.getVehicleOut().format(formatter) : "");
