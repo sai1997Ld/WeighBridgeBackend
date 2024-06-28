@@ -103,7 +103,7 @@ public class WeighmentTransactionSpecification implements Specification<Weighmen
             if (criteria.getProductName() != null) {
                 long productIdByProductName = productMasterRepository.findProductIdByProductName(criteria.getProductName());
                 Predicate combinedPredicate = builder.and(
-                        builder.equal(root.get("gateEntryTransaction").get("productId"), productIdByProductName),
+                        builder.equal(root.get("gateEntryTransaction").get("materialId"), productIdByProductName),
                         builder.equal(root.get("gateEntryTransaction").get("siteId"), criteria.getSiteId()),
                         builder.equal(root.get("gateEntryTransaction").get("companyId"), criteria.getCompanyId())
                 );
