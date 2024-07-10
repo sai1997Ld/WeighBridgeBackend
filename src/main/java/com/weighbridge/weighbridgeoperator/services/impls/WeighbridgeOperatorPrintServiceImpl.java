@@ -59,20 +59,23 @@ public class WeighbridgeOperatorPrintServiceImpl implements WeighbridgeOperatorP
         WeighbridgeOperatorPrint weighbridgeOperatorPrint=new WeighbridgeOperatorPrint();
         weighbridgeOperatorPrint.setTicketNo(byTicketNo.getTicketNo());
         weighbridgeOperatorPrint.setVehicleNo(vehicleMasterRepository.findVehicleNoById(byTicketNo.getVehicleId()));
+        weighbridgeOperatorPrint.setTransactionType(byTicketNo.getTransactionType());
         if(byTicketNo.getTransactionType().equalsIgnoreCase("Outbound")) {
+            weighbridgeOperatorPrint.setChallanNo("");
             weighbridgeOperatorPrint.setProductName(productMasterRepository.findProductNameByProductId(byTicketNo.getMaterialId()));
             weighbridgeOperatorPrint.setCustomerName(customerMasterRepository.findCustomerNameByCustomerId(byTicketNo.getCustomerId()));
             weighbridgeOperatorPrint.setGrossWeight(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getGrossWeight()*1000);
             weighbridgeOperatorPrint.setTareWeight(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getTemporaryWeight()*1000);
         }
         else {
+            weighbridgeOperatorPrint.setChallanNo(byTicketNo.getTpNo());
             weighbridgeOperatorPrint.setMaterialName(materialMasterRepository.findMaterialNameByMaterialId(byTicketNo.getMaterialId()));
             weighbridgeOperatorPrint.setSupplierName(supplierMasterRepository.findSupplierNameBySupplierId(byTicketNo.getSupplierId()));
             weighbridgeOperatorPrint.setTareWeight(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getTareWeight()*1000);
            weighbridgeOperatorPrint.setGrossWeight(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getTemporaryWeight()*1000);
         }
         weighbridgeOperatorPrint.setTransporterName(transporterMasterRepository.findTransporterNameByTransporterId(byTicketNo.getTransporterId()));
-        weighbridgeOperatorPrint.setChallanNo(byTicketNo.getTpNo());
+
         weighbridgeOperatorPrint.setCompanyName(companyMasterRepository.findCompanyNameByCompanyId(byTicketNo.getCompanyId()));
         weighbridgeOperatorPrint.setCompanyAdress(companyMasterRepository.findCompanyAddressByCompanyId(byTicketNo.getCompanyId()));
         TransactionLog gwt = transactionLogRepository.findByTicketNoAndStatusCode(byTicketNo.getTicketNo(), "GWT");

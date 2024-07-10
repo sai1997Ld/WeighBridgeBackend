@@ -45,6 +45,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -207,7 +209,7 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
                 SalesProcess bySalePassNo = salesProcessRepository.findBySalePassNo(gateEntryId.getTpNo());
                 SalesOrder bySaleOrderNo = salesOrderRespository.findBySaleOrderNo(bySalePassNo.getPurchaseSale().getSaleOrderNo());
                 double progressiveQty = bySaleOrderNo.getProgressiveQuantity() + netWeight;
-                double balanceQty = bySaleOrderNo.getBalanceQuantity() - progressiveQty ;
+                double balanceQty = bySaleOrderNo.getOrderedQuantity() - progressiveQty ;
                 bySaleOrderNo.setProgressiveQuantity(progressiveQty);
                 bySaleOrderNo.setBalanceQuantity(balanceQty);
                 salesOrderRespository.save(bySaleOrderNo);
@@ -276,10 +278,14 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
                         response.setSupplierName((String) row[11]);
                         response.setCustomerName("");
                         response.setMaterialName((String) row[13]);
+                        response.setMaterialType((String) row[14]); // Set materialType for inbound
+
                     } else {
                         response.setCustomerName((String) row[11]);
                         response.setSupplierName("");
                         response.setMaterialName((String) row[13]);
+                        response.setMaterialType((String) row[14]); // Set materialType for inbound
+
                     }
 
                     response.setTransporterName((String) row[12]);
@@ -322,7 +328,6 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
             ticketResponse.setPoNo(gateEntryTransaction.getPoNo());
             ticketResponse.setTpNo(gateEntryTransaction.getTpNo());
             ticketResponse.setChallanNo(gateEntryTransaction.getChallanNo());
-            ticketResponse.setMaterial(materialMasterRepository.findMaterialNameByMaterialId(gateEntryTransaction.getMaterialId()));
             ticketResponse.setTransporter(transporterMasterRepository.findTransporterNameByTransporterId(gateEntryTransaction.getTransporterId()));
             ticketResponse.setDriverName(gateEntryTransaction.getDriverName());
             VehicleMaster vehicleMaster = vehicleMasterRepository.findById(gateEntryTransaction.getVehicleId()).orElseThrow(() -> new ResourceNotFoundException("Vehicle is not found"));
@@ -360,12 +365,16 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
                     System.out.println(supplierName + " " + supplierAddress);
                     ticketResponse.setSupplierName(supplierName);
                     ticketResponse.setSupplierAddress(supplierAddress);
+                    ticketResponse.setMaterial(materialMasterRepository.findMaterialNameByMaterialId(gateEntryTransaction.getMaterialId()));
+                    ticketResponse.setMaterialType(gateEntryTransaction.getMaterialType());
                 }
             }
             if (transactionType.equalsIgnoreCase("Outbound")) {
                 if (byGateEntryTransactionTicketNo != null) {
                     ticketResponse.setTareWeight(byGateEntryTransactionTicketNo.getTemporaryWeight()*1000);
                     ticketResponse.setGrossWeight(byGateEntryTransactionTicketNo.getGrossWeight()*1000);
+                    ticketResponse.setMaterial(productMasterRepository.findProductNameByProductId(gateEntryTransaction.getMaterialId()));
+                    ticketResponse.setMaterialType(gateEntryTransaction.getMaterialType());
                 }
                 Object[] customerInfo = customerMasterRepository.findCustomerNameAndAddressBycustomerId(gateEntryTransaction.getCustomerId());
                 Object[] customerData = (Object[]) customerInfo[0];
@@ -498,23 +507,48 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
         }
         List<WeighmentTransactionResponse> weighmentTransactionResponses=new ArrayList<>();
         for(WeighmentTransaction weighmentTransaction:allUsers){
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");       
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
             WeighmentTransactionResponse weighmentTransactionResponse = new WeighmentTransactionResponse();
             weighmentTransactionResponse.setTransactionDate(weighmentTransaction.getGateEntryTransaction().getTransactionDate());
             weighmentTransactionResponse.setTransactionType(weighmentTransaction.getGateEntryTransaction().getTransactionType());
             weighmentTransactionResponse.setWeighmentNo(String.valueOf(weighmentTransaction.getWeighmentNo()));
             weighmentTransactionResponse.setTicketNo(String.valueOf(weighmentTransaction.getGateEntryTransaction().getTicketNo()));
             weighmentTransactionResponse.setVehicleIn(weighmentTransaction.getGateEntryTransaction().getVehicleIn().format(formatter));
-            weighmentTransactionResponse.setNetWeight(String.valueOf(weighmentTransaction.getNetWeight()*1000));
-            weighmentTransactionResponse.setGrossWeight(String.valueOf(weighmentTransaction.getGrossWeight()*1000));
-            weighmentTransactionResponse.setTareWeight(String.valueOf(weighmentTransaction.getTareWeight()*1000));
+            LocalDateTime vehicleOut = weighmentTransaction.getGateEntryTransaction().getVehicleOut();
+            if(vehicleOut!=null){
+                weighmentTransactionResponse.setVehicleOut(vehicleOut.format(formatter));
+
+            }
+            else{
+                weighmentTransactionResponse.setVehicleOut("");
+
+            }
+
+
+
+            weighmentTransactionResponse.setNetWeight(
+            	    String.valueOf(BigDecimal.valueOf(weighmentTransaction.getNetWeight() * 1000)
+            	        .setScale(3, RoundingMode.HALF_UP))
+            	);
+            	weighmentTransactionResponse.setGrossWeight(
+            	    String.valueOf(BigDecimal.valueOf(weighmentTransaction.getGrossWeight() * 1000)
+            	        .setScale(3, RoundingMode.HALF_UP))
+            	);
+            	weighmentTransactionResponse.setTareWeight(
+            	    String.valueOf(BigDecimal.valueOf(weighmentTransaction.getTareWeight() * 1000)
+            	        .setScale(3, RoundingMode.HALF_UP))
+            	);
             weighmentTransactionResponse.setVehicleNo(vehicleMasterRepository.findVehicleNoById(weighmentTransaction.getGateEntryTransaction().getVehicleId()));
             weighmentTransactionResponse.setVehicleFitnessUpTo(vehicleMasterRepository.findVehicleFitnessById(weighmentTransaction.getGateEntryTransaction().getVehicleId()));
             if (weighmentTransaction.getGateEntryTransaction().getTransactionType().equalsIgnoreCase("Inbound")) {
                 weighmentTransactionResponse.setMaterialName(materialMasterRepository.findMaterialNameByMaterialId(weighmentTransaction.getGateEntryTransaction().getMaterialId()));
+                weighmentTransactionResponse.setMaterialType(weighmentTransaction.getGateEntryTransaction().getMaterialType());
                 weighmentTransactionResponse.setSupplierName(supplierMasterRepository.findSupplierNameBySupplierId(weighmentTransaction.getGateEntryTransaction().getSupplierId()));
             } else {
                 weighmentTransactionResponse.setMaterialName(productMasterRepository.findProductNameByProductId(weighmentTransaction.getGateEntryTransaction().getMaterialId()));
+                weighmentTransactionResponse.setMaterialType(weighmentTransaction.getGateEntryTransaction().getMaterialType());
                 weighmentTransactionResponse.setCustomerName(customerMasterRepository.findCustomerNameByCustomerId(weighmentTransaction.getGateEntryTransaction().getCustomerId()));
             }
 

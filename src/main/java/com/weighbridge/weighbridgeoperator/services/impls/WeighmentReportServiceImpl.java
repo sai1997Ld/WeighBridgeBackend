@@ -224,8 +224,8 @@ public class WeighmentReportServiceImpl implements WeighmentReportService {
 			// Determine the key for grouping
 			String materialName = response.getMaterial();
 			String supplierOrCustomer = response.getTransactionType().equalsIgnoreCase("Inbound")
-					? response.getSupplier()
-					: response.getCustomer();
+					? response.getSupplier()+" "+response.getSupplierAddress()
+					: response.getCustomer()+" "+response.getCustomerAddress();
 			String key = materialName + "-" + (supplierOrCustomer != null ? supplierOrCustomer : "Unknown");
 
 			// Map to weighbridge report response
@@ -293,6 +293,8 @@ public class WeighmentReportServiceImpl implements WeighmentReportService {
 	 */
 	private WeighbridgeReportResponseList mapToWeighbridgeReportResponse(
 			GateEntryTransactionResponse gateEntryResponse) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+
 		WeighmentTransaction weighmentTransaction = weighmentTransactionRepository
 				.findByGateEntryTransactionTicketNo(gateEntryResponse.getTicketNo());
 		// Define the formatter for the desired date format
@@ -305,7 +307,8 @@ public class WeighmentReportServiceImpl implements WeighmentReportService {
 		weighbridgeReportResponseList.setTransactionDate(formatTransactionDate);
 		weighbridgeReportResponseList.setVehicleNo(gateEntryResponse.getVehicleNo());
 		weighbridgeReportResponseList.setTpNo(gateEntryResponse.getTpNo());
-
+        weighbridgeReportResponseList.setInTime(gateEntryResponse.getVehicleIn());
+        weighbridgeReportResponseList.setOutTime(gateEntryResponse.getVehicleOut());
 		// Get the LocalDate from gateEntryResponse
 		LocalDate challanDate = gateEntryResponse.getChallanDate();
 
@@ -336,11 +339,21 @@ public class WeighmentReportServiceImpl implements WeighmentReportService {
 			// Use BigDecimal to round netWeight to 3 decimal places
 			BigDecimal netWeightRounded = new BigDecimal(netWeight).setScale(3, RoundingMode.HALF_UP);
 			weighbridgeReportResponseList.setWeighQuantity(netWeightRounded.doubleValue());
+			BigDecimal excessQtyRounded;
+			double excessQty=0.0;
+			if(gateEntryResponse.getTransactionType().equalsIgnoreCase("outbound")) {
+				if(supplyConsignmentWeight>0){
+					excessQty = supplyConsignmentWeight - netWeightRounded.doubleValue();
+				}else {
+					excessQty = 0.0;
+				}
+			}
+			if(gateEntryResponse.getTransactionType().equalsIgnoreCase("inbound")) {
 
-			double excessQty = supplyConsignmentWeight - netWeightRounded.doubleValue();
-
+				excessQty = supplyConsignmentWeight - netWeightRounded.doubleValue();
+			}
 			// Use BigDecimal to round excessQty to 3 decimal places
-			BigDecimal excessQtyRounded = new BigDecimal(excessQty).setScale(3, RoundingMode.HALF_UP);
+			excessQtyRounded = new BigDecimal(excessQty).setScale(3, RoundingMode.HALF_UP);
 			weighbridgeReportResponseList.setExcessQty(excessQtyRounded.doubleValue());
 
 		}

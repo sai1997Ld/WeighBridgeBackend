@@ -23,6 +23,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -129,8 +131,15 @@ public class SalesOrderServiceImpl implements SalesOrderService {
             salesDashboardResponse.setSaleOrderNo(salesOrder.getSaleOrderNo());
             salesDashboardResponse.setProductName(salesOrder.getProductName());
             salesDashboardResponse.setBrokerName(salesOrder.getBrokerName());
-            salesDashboardResponse.setProgressiveQty(salesOrder.getProgressiveQuantity());
-            salesDashboardResponse.setBalanceQty(salesOrder.getBalanceQuantity());
+            salesDashboardResponse.setOrderedQty(
+                    BigDecimal.valueOf(salesOrder.getOrderedQuantity()).setScale(3, RoundingMode.HALF_UP).doubleValue()
+            );
+            salesDashboardResponse.setProgressiveQty(
+                    BigDecimal.valueOf(salesOrder.getProgressiveQuantity()).setScale(3, RoundingMode.HALF_UP).doubleValue()
+            );
+            salesDashboardResponse.setBalanceQty(
+                    BigDecimal.valueOf(salesOrder.getBalanceQuantity()).setScale(3, RoundingMode.HALF_UP).doubleValue()
+            );
             // Assuming getPurchasePassNo() is a method of SalesProcess, not List<SalesProcess>
             list.add(salesDashboardResponse);
         }
@@ -168,6 +177,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Session Expired, Login again !");
         }*/
+    	 DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         UserMaster userMaster = userMasterRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("user not found with site and company."));
         Page<SalesProcess> allVehiclesDetails= salesProcessRepository.findAllByStatusAndPurchaseSaleSiteIdAndPurchaseSaleCompanyId(true,userMaster.getSite().getSiteId(),userMaster.getCompany().getCompanyId(),pageable);
         List<SalesProcess> allUsers = allVehiclesDetails.getContent();
@@ -192,7 +202,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
            // vehicleAndTransporterDetail.setCustomerAddress();
             vehicleAndTransporterDetail.setSaleOrderNo(salesProcess.getPurchaseSale().getSaleOrderNo());
             vehicleAndTransporterDetail.setPurchaseOrderNo(salesProcess.getPurchaseSale().getPurchaseOrderNo());
-            vehicleAndTransporterDetail.setSaleOrderDate(salesProcess.getPurchaseSale().getPurchaseOrderedDate());
+            vehicleAndTransporterDetail.setSaleOrderDate(salesProcess.getPurchaseSale().getPurchaseOrderedDate().format(dateFormatter));
             listOfVehicle.add(vehicleAndTransporterDetail);
         }
         SalesUserPageResponse salesUserPageResponse=new SalesUserPageResponse();
@@ -204,6 +214,8 @@ public class SalesOrderServiceImpl implements SalesOrderService {
 
 
     public VehicleAndTransporterDetail getBySalePassNo(String salePassNo){
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
         SalesProcess bySalePassNo = salesProcessRepository.findBySalePassNo(salePassNo);
         VehicleAndTransporterDetail vehicleAndTransporterDetail = new VehicleAndTransporterDetail();
         vehicleAndTransporterDetail.setSalePassNo(bySalePassNo.getSalePassNo());
@@ -228,7 +240,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
         // vehicleAndTransporterDetail.setCustomerAddress();
         vehicleAndTransporterDetail.setSaleOrderNo(bySalePassNo.getPurchaseSale().getSaleOrderNo());
         vehicleAndTransporterDetail.setPurchaseOrderNo(bySalePassNo.getPurchaseSale().getPurchaseOrderNo());
-        vehicleAndTransporterDetail.setSaleOrderDate(bySalePassNo.getPurchaseSale().getPurchaseOrderedDate());
+        vehicleAndTransporterDetail.setSaleOrderDate(bySalePassNo.getPurchaseSale().getPurchaseOrderedDate().format(dateFormatter));
         System.out.println(bySalePassNo.getPurchaseSale().getPurchaseOrderedDate());
         return vehicleAndTransporterDetail;
     }

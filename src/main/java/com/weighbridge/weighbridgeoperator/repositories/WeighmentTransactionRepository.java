@@ -26,7 +26,8 @@ public interface WeighmentTransactionRepository extends JpaRepository<WeighmentT
             "COALESCE(s.supplierName, c.customerName) AS supplierOrCustomer, " +
             "t.transporterName, " +
             "CASE WHEN g.transactionType = 'Inbound' THEN m.materialName " +
-            "     WHEN g.transactionType = 'Outbound' THEN p.productName END AS materialOrProduct " +
+            "     WHEN g.transactionType = 'Outbound' THEN p.productName END AS materialOrProduct, " +
+            "g.materialType AS type " +
             "FROM GateEntryTransaction g " +
             "LEFT JOIN WeighmentTransaction w ON g.ticketNo = w.gateEntryTransaction.ticketNo " +
             "INNER JOIN VehicleMaster v ON v.id = g.vehicleId " +
@@ -36,12 +37,21 @@ public interface WeighmentTransactionRepository extends JpaRepository<WeighmentT
             "INNER JOIN VehicleTransactionStatus ts ON ts.ticketNo = g.ticketNo " +
             "LEFT JOIN SupplierMaster s ON s.supplierId = g.supplierId " +
             "LEFT JOIN CustomerMaster c ON c.customerId = g.customerId " +
-            "WHERE g.siteId = :siteId AND g.companyId=:companyId AND (w.netWeight IS NULL OR w.netWeight = 0.0) " +
+            "WHERE g.siteId = :siteId AND g.companyId = :companyId " +
+            "  AND ( " +
+            "      (w.grossWeight = 0.0 AND w.tareWeight = 0.0 AND w.temporaryWeight != 0.0) " +
+            "      OR (w.grossWeight > 0.0 AND w.tareWeight = 0.0) " +
+            "      OR (w.grossWeight = 0.0 AND w.tareWeight > 0.0) " +
+            "      OR (w.grossWeight IS NULL OR w.tareWeight IS NULL) " +
+            "  ) " +
             "ORDER BY g.ticketNo DESC")
     Page<Object[]> getAllGateEntries(@Param("siteId") String siteId, @Param("companyId") String companyId, Pageable pageable);
 
-    @Query("FROM WeighmentTransaction wt WHERE wt.gateEntryTransaction.siteId=:userSite AND wt.gateEntryTransaction.companyId=:userCompany AND wt.netWeight!=0.0")
+    @Query("FROM WeighmentTransaction wt WHERE wt.gateEntryTransaction.siteId=:userSite " +
+            "AND wt.gateEntryTransaction.companyId=:userCompany " +
+            "AND (wt.netWeight != 0.0 OR (wt.grossWeight != 0.0 AND wt.tareWeight != 0.0))")
     Page<WeighmentTransaction> findAllByUserSiteAndUserCompany(String userSite, String userCompany, Pageable pageable);
+
 
     @Query("SELECT COUNT(wt.netWeight) FROM WeighmentTransaction wt WHERE wt.netWeight!=0.0")
     long countCompletedTransactions();
