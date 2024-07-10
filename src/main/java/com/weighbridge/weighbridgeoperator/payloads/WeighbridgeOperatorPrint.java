@@ -15,6 +15,7 @@ public class WeighbridgeOperatorPrint {
     private String transporterName;
     private String customerName;
     private String supplierName;
+    private String transactionType;
     private String challanNo;
     private double grossWeight;
     private double tareWeight;

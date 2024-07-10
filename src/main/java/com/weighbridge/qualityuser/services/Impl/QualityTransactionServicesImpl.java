@@ -357,7 +357,7 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
                     if (transaction.getVehicleOut() != null) {
                         qualityDashboardResponse.setOut(transaction.getVehicleOut().format(formatter));
                     }
-                    qualityDashboardResponse.setDate(transaction.getTransactionDate().format(formatter));
+                    qualityDashboardResponse.setDate(transaction.getTransactionDate().format(dateFormat));
                     QualityTransaction qualityTransaction = qualityTransactionRepository.findByTicketNo(transaction.getTicketNo());
                     if (qualityTransaction == null) {
                         qualityDashboardResponse.setQualityParametersPresent(false);
@@ -508,6 +508,7 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
     public ReportResponse getReportResponse(Integer ticketNo, String userId) {
         UserMaster userMaster = Optional.ofNullable(userMasterRepository.findByUserId(userId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Session timed out, Login again!"));
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
         String userSite = userMaster.getSite().getSiteId();
         String userCompany = userMaster.getCompany().getCompanyId();
@@ -517,7 +518,7 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
             VehicleTransactionStatus transactionStatus = vehicleTransactionStatusRepository.findByTicketNo(gateEntryTransaction.getTicketNo());
             ReportResponse reportResponse = new ReportResponse();
             reportResponse.setTicketNo(gateEntryTransaction.getTicketNo());
-            reportResponse.setDate(String.valueOf(gateEntryTransaction.getTransactionDate()));
+            reportResponse.setDate(gateEntryTransaction.getTransactionDate().format(dateFormatter));
             reportResponse.setTransactionType(gateEntryTransaction.getTransactionType());
             VehicleMaster vehicleMaster = vehicleMasterRepository.findById(gateEntryTransaction.getVehicleId())
                     .orElseThrow(() -> new ResourceNotFoundException("Vehicle is not found"));

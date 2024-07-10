@@ -16,5 +16,5 @@ public class VehicleAndTransporterDetail {
     private String productName;
     private String productType;
     private double consignmentWeight;
-    private LocalDate saleOrderDate;
+    private String saleOrderDate;
 }
