@@ -18,6 +18,7 @@ public class TicketResponse {
     private String driverDlNo;
     private String driverName;
     private String material;
+    private String materialType;
     private double grossWeight;
     private double tareWeight;
     private double netWeight;

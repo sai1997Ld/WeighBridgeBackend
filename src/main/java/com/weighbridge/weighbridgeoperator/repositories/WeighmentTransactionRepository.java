@@ -26,7 +26,8 @@ public interface WeighmentTransactionRepository extends JpaRepository<WeighmentT
             "COALESCE(s.supplierName, c.customerName) AS supplierOrCustomer, " +
             "t.transporterName, " +
             "CASE WHEN g.transactionType = 'Inbound' THEN m.materialName " +
-            "     WHEN g.transactionType = 'Outbound' THEN p.productName END AS materialOrProduct " +
+            "     WHEN g.transactionType = 'Outbound' THEN p.productName END AS materialOrProduct, " +
+            "g.materialType AS type " +
             "FROM GateEntryTransaction g " +
             "LEFT JOIN WeighmentTransaction w ON g.ticketNo = w.gateEntryTransaction.ticketNo " +
             "INNER JOIN VehicleMaster v ON v.id = g.vehicleId " +

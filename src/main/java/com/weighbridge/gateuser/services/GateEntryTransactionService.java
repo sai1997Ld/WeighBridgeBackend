@@ -37,7 +37,9 @@ public interface GateEntryTransactionService {
      * @param ticketNo The ticket number of the vehicle for which out time is to be set.
      * @return A message indicating whether the vehicle can exit or not.
      */
-    String setOutTime(Integer ticketNo,String userId);
+    String setOutTime(Integer ticketNo,String userId,MultipartFile frontImg1, MultipartFile backImg2, MultipartFile topImg3,
+                      MultipartFile bottomImg4, MultipartFile leftImg5,
+                      MultipartFile rightImg6, String role);
 
     /**
      * Retrieves all gate entry transactions associated with the current user session.

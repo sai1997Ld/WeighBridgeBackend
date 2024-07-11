@@ -581,7 +581,11 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
 
 
             Map<String, byte[]> stringMap = cameraViewService.downloadImages(transaction.getTicketNo(), role, userSite, userCompany,"ENTRY");
-            response.setImagesMap(stringMap);
+            if(stringMap==null){
+
+            }else{
+                response.setImagesMap(stringMap);
+            }
            /* QualityTransaction byTicketNo = qualityTransactionRepository.findByTicketNo(transaction.getTicketNo());
             if (byTicketNo != null) {
                 response.setQuality(true);
@@ -608,7 +612,9 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
      * @throws ResponseStatusException If the session is expired and login is required, or if the vehicle's tare weight is not measured yet.
      */
     @Override
-    public String setOutTime(Integer ticketNo,String userId) {
+    public String setOutTime(Integer ticketNo,String userId,MultipartFile frontImg1, MultipartFile backImg2, MultipartFile topImg3,
+                             MultipartFile bottomImg4, MultipartFile leftImg5,
+                             MultipartFile rightImg6, String role) {
         try {
             // Retrieve vehicle transaction status and gate entry transaction
             VehicleTransactionStatus vehicleTransactionStatus = vehicleTransactionStatusRepository.findByTicketNo(ticketNo);
@@ -618,8 +624,10 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
             if (transactionType == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transaction Type is not Mentioned");
             }
+            cameraViewService.uploadImages(ticketNo,frontImg1,backImg2,topImg3,bottomImg4,leftImg5,rightImg6,role,"EXIT"); // for nextCloud
+//            cameraViewService.uploadImagesUserId(ticketNo, frontImg1, backImg2, topImg3, bottomImg4, leftImg5, rightImg6, role,"EXIT",userId); // for server Path
 
-            List<String> allowedStatusCodes = gateEntryTransaction.getTransactionType().equalsIgnoreCase("Inbound") ? Arrays.asList("GWT", "TWT") : Arrays.asList("GWT", "QCT");
+            List<String> allowedStatusCodes = gateEntryTransaction.getTransactionType().equalsIgnoreCase("Inbound") ? Arrays.asList("GWT", "TWT") : Arrays.asList("GWT", "TWT");
             System.out.println(allowedStatusCodes);
             List<String> statusCodesByTicket = transactionLogRepository.findStatusCodesByTicket(ticketNo);
             System.out.println(statusCodesByTicket);
@@ -630,14 +638,6 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
             if (!allAllowedStatusCodesPresent) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vehicle is not allowed to exit!");
             }
-            // Retrieve user ID from session
-   /*         HttpSession session = httpServletRequest.getSession();
-            String userId;*/
-           /* if (userId != null) {
-                userId = session.getAttribute("userId").toString();
-            } else {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Session Expired, Login again !");
-            }*/
 
             // Save transaction log with vehicle out time
             TransactionLog transactionLog = new TransactionLog();

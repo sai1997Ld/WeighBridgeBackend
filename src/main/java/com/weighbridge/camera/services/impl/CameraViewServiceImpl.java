@@ -216,7 +216,7 @@ public class CameraViewServiceImpl implements CameraViewService {
         }
         CameraView cameraView = cameraRepository.findByTicketNoAndRoleIdAndTruckStatus(ticketNo, roleId,truckStatus);
         if (cameraView == null) {
-            throw new ResourceNotFoundException("CameraView not found for ticketNo and role: " + ticketNo + " and " + role);
+            return null;
         }
 
         Map<String, byte[]> imagesMap = new HashMap<>();

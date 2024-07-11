@@ -13,6 +13,7 @@ public class WeighmentTransactionResponse {
         private String transactionType;
         private LocalDate transactionDate;
         private String vehicleIn;
+        private String vehicleOut;
         private String grossWeight;
         private String tareWeight;
         private String netWeight;
@@ -22,4 +23,5 @@ public class WeighmentTransactionResponse {
         private String customerName;
         private String transporterName;
         private String materialName;
+        private String materialType;
 }

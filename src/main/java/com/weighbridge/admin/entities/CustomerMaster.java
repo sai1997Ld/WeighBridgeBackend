@@ -31,13 +31,12 @@ public class CustomerMaster {
     @Column(name = "customer_name",nullable = false)
     private String customerName;
 
-    @NotBlank(message = "Email is required")
+
     @Email(message = "Invalid Email format")
-    @Column(name = "customer_email", unique = true)
+    @Column(name = "customer_email")
     private String customerEmail;
 
-    @NotBlank(message = "Contact number is required")
-    @Pattern(regexp = "^\\+?[1-9][0-9]{7,14}$", message = "Invalid contact number format")
+
     @Column(name = "customer_contactNo")
     private String customerContactNo;
     @Column(nullable = false)
