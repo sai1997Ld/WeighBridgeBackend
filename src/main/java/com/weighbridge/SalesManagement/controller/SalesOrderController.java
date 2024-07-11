@@ -35,7 +35,7 @@ public class SalesOrderController {
     @GetMapping("/getAll/sales/{userId}")
     public ResponseEntity<SalesUserPageResponse> getAllSales(@RequestParam(defaultValue = "0", required = false) int page,
                                                                     @RequestParam(defaultValue = "5", required = false) int size,
-                                                                    @RequestParam(required = false, defaultValue = "saleOrderNo") String sortField,
+                                                                    @RequestParam(required = false, defaultValue = "purchaseOrderedDate") String sortField,
                                                                     @RequestParam(defaultValue = "desc", required = false) String sortOrder,@PathVariable String userId){
 
         Pageable pageable;

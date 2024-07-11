@@ -13,6 +13,8 @@ import com.weighbridge.weighbridgeoperator.services.WeighbridgeOperatorPrintServ
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.format.DateTimeFormatter;
 
 @Service
@@ -64,6 +66,13 @@ public class WeighbridgeOperatorPrintServiceImpl implements WeighbridgeOperatorP
             weighbridgeOperatorPrint.setChallanNo("");
             weighbridgeOperatorPrint.setProductName(productMasterRepository.findProductNameByProductId(byTicketNo.getMaterialId()));
             weighbridgeOperatorPrint.setCustomerName(customerMasterRepository.findCustomerNameByCustomerId(byTicketNo.getCustomerId()));
+            // Round and set TareWeight
+            BigDecimal grossWeight = BigDecimal.valueOf(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getGrossWeight()).setScale(3, RoundingMode.UP);
+            weighbridgeOperatorPrint.setTareWeight(grossWeight.doubleValue() * 1000);
+
+// Round and set GrossWeight
+            BigDecimal tareWeight = BigDecimal.valueOf(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getTemporaryWeight()).setScale(3, RoundingMode.UP);
+            weighbridgeOperatorPrint.setGrossWeight(tareWeight.doubleValue() * 1000);
             weighbridgeOperatorPrint.setGrossWeight(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getGrossWeight()*1000);
             weighbridgeOperatorPrint.setTareWeight(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getTemporaryWeight()*1000);
         }
@@ -90,7 +99,9 @@ public class WeighbridgeOperatorPrintServiceImpl implements WeighbridgeOperatorP
         String timeFormat1=twt!=null?twt.getTimestamp().format(timeFormatter):"";
         weighbridgeOperatorPrint.setTareWeightDate(dateFormat1);
         weighbridgeOperatorPrint.setTareWeightTime(timeFormat1);
-        weighbridgeOperatorPrint.setNetWeight(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getNetWeight()*1000);
+// Round and set NetWeight
+        BigDecimal netWeight = BigDecimal.valueOf(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getNetWeight()).setScale(3, RoundingMode.UP);
+        weighbridgeOperatorPrint.setNetWeight(netWeight.doubleValue() * 1000);
         System.out.println(weighbridgeOperatorPrint);
         return weighbridgeOperatorPrint;
     }
