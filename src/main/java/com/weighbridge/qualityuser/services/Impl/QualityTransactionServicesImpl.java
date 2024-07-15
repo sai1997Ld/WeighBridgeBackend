@@ -9,15 +9,7 @@ import com.weighbridge.admin.entities.SupplierMaster;
 import com.weighbridge.admin.entities.UserMaster;
 import com.weighbridge.admin.entities.VehicleMaster;
 import com.weighbridge.admin.exceptions.SessionExpiredException;
-import com.weighbridge.admin.repsitories.CompanyMasterRepository;
-import com.weighbridge.admin.repsitories.CustomerMasterRepository;
-import com.weighbridge.admin.repsitories.MaterialMasterRepository;
-import com.weighbridge.admin.repsitories.ProductMasterRepository;
-import com.weighbridge.admin.repsitories.QualityRangeMasterRepository;
-import com.weighbridge.admin.repsitories.SupplierMasterRepository;
-import com.weighbridge.admin.repsitories.TransporterMasterRepository;
-import com.weighbridge.admin.repsitories.UserMasterRepository;
-import com.weighbridge.admin.repsitories.VehicleMasterRepository;
+import com.weighbridge.admin.repsitories.*;
 import com.weighbridge.gateuser.entities.GateEntryTransaction;
 import com.weighbridge.gateuser.entities.TransactionLog;
 import com.weighbridge.weighbridgeoperator.entities.VehicleTransactionStatus;
@@ -36,6 +28,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -64,6 +57,7 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
     private final TransactionLogRepository transactionLogRepository;
     private final QualityRangeMasterRepository qualityRangeMasterRepository;
     private final CompanyMasterRepository companyMasterRepository;
+    private final SiteMasterRepository siteMasterRepository;
     private final ProductMasterRepository productMasterRepository;
     private final UserMasterRepository userMasterRepository;
 
@@ -77,7 +71,7 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
                                           TransporterMasterRepository transporterMasterRepository,
                                           VehicleMasterRepository vehicleMasterRepository,
                                           TransactionLogRepository transactionLogRepository,
-                                          QualityRangeMasterRepository qualityRangeMasterRepository, CompanyMasterRepository companyMasterRepository, ProductMasterRepository productMasterRepository, UserMasterRepository userMasterRepository) {
+                                          QualityRangeMasterRepository qualityRangeMasterRepository, CompanyMasterRepository companyMasterRepository, SiteMasterRepository siteMasterRepository, ProductMasterRepository productMasterRepository, UserMasterRepository userMasterRepository) {
         this.qualityTransactionRepository = qualityTransactionRepository;
         this.gateEntryTransactionRepository = gateEntryTransactionRepository;
         this.httpServletRequest = httpServletRequest;
@@ -90,6 +84,7 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
         this.transactionLogRepository = transactionLogRepository;
         this.qualityRangeMasterRepository = qualityRangeMasterRepository;
         this.companyMasterRepository = companyMasterRepository;
+        this.siteMasterRepository = siteMasterRepository;
         this.productMasterRepository = productMasterRepository;
         this.userMasterRepository = userMasterRepository;
     }
@@ -615,25 +610,52 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
     }
 
     @Override
-    public List<QualityDashboardResponse> getInboundTransaction(String userId) {
-        UserMaster userMaster = Optional.ofNullable(userMasterRepository.findByUserId(userId))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Session timed out, Login again!"));
+    public List<QualityDashboardResponse> getInboundTransaction(String userId,String companyName,String siteName) {
+        String userSite = null;
+        String userCompany = null;
+        if(StringUtils.hasLength(userId)) {
+            UserMaster userMaster = Optional.ofNullable(userMasterRepository.findByUserId(userId))
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Session timed out, Login again!"));
 
-        String userSite = userMaster.getSite().getSiteId();
-        String userCompany = userMaster.getCompany().getCompanyId();
+            userSite = userMaster.getSite().getSiteId();
+            userCompany = userMaster.getCompany().getCompanyId();
+        }
+        else if(StringUtils.hasLength(companyName)&StringUtils.hasLength(siteName)) {
 
+            String[] site = siteName.split(",");
+            userSite = siteMasterRepository.findSiteIdBySiteName(site[0], site[1]);
+            userCompany = companyMasterRepository.findCompanyIdByCompanyName(companyName);
+            
+        }
+        else{
+            throw new com.weighbridge.admin.exceptions.ResourceNotFoundException("User Id or Company Site Not Given");
+        }
         // Retrieve all transactions for the user's site and company
         List<GateEntryTransaction> inboundTransaction = gateEntryTransactionRepository.findByTransactionTypeAndSiteIdAndCompanyIdOrderByTransactionDate("Inbound", userSite, userCompany);
         return processTransaction(inboundTransaction);
     }
 
     @Override
-    public List<QualityDashboardResponse> getOutboundTransaction(String userId) {
-        UserMaster userMaster = Optional.ofNullable(userMasterRepository.findByUserId(userId))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Session timed out, Login again!"));
+    public List<QualityDashboardResponse> getOutboundTransaction(String userId,String companyName,String siteName) {
+        String userSite = null;
+        String userCompany = null;
+        if(StringUtils.hasLength(userId)) {
+            UserMaster userMaster = Optional.ofNullable(userMasterRepository.findByUserId(userId))
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Session timed out, Login again!"));
 
-        String userSite = userMaster.getSite().getSiteId();
-        String userCompany = userMaster.getCompany().getCompanyId();
+            userSite = userMaster.getSite().getSiteId();
+            userCompany = userMaster.getCompany().getCompanyId();
+        }
+        else if(StringUtils.hasLength(companyName)&StringUtils.hasLength(siteName)) {
+
+            String[] site = siteName.split(",");
+            userSite = siteMasterRepository.findSiteIdBySiteName(site[0], site[1]);
+            userCompany = companyMasterRepository.findCompanyIdByCompanyName(companyName);
+
+        }
+        else{
+            throw new com.weighbridge.admin.exceptions.ResourceNotFoundException("User Id or Company Site Not Given");
+        }
 
         // Retrieve all transactions for the user's site and company, ordered by transaction date in descending order
         List<GateEntryTransaction> outboundTransaction = gateEntryTransactionRepository.findByTransactionTypeAndSiteIdAndCompanyIdOrderByTransactionDate("Outbound", userSite, userCompany);

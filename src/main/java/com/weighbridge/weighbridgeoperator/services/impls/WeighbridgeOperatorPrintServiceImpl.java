@@ -66,23 +66,30 @@ public class WeighbridgeOperatorPrintServiceImpl implements WeighbridgeOperatorP
             weighbridgeOperatorPrint.setChallanNo("");
             weighbridgeOperatorPrint.setProductName(productMasterRepository.findProductNameByProductId(byTicketNo.getMaterialId()));
             weighbridgeOperatorPrint.setCustomerName(customerMasterRepository.findCustomerNameByCustomerId(byTicketNo.getCustomerId()));
-            // Round and set TareWeight
+            // Round and set GrossWeight
             BigDecimal grossWeight = BigDecimal.valueOf(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getGrossWeight()).setScale(3, RoundingMode.UP);
-            weighbridgeOperatorPrint.setTareWeight(grossWeight.doubleValue() * 1000);
+            weighbridgeOperatorPrint.setGrossWeight(String.valueOf(BigDecimal.valueOf(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getGrossWeight() * 1000)
+                    .setScale(3, RoundingMode.HALF_UP)));
 
-// Round and set GrossWeight
-            BigDecimal tareWeight = BigDecimal.valueOf(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getTemporaryWeight()).setScale(3, RoundingMode.UP);
-            weighbridgeOperatorPrint.setGrossWeight(tareWeight.doubleValue() * 1000);
-            weighbridgeOperatorPrint.setGrossWeight(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getGrossWeight()*1000);
-            weighbridgeOperatorPrint.setTareWeight(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getTemporaryWeight()*1000);
-        }
-        else {
+            // Round and set TareWeight
+
+            weighbridgeOperatorPrint.setTareWeight(String.valueOf(BigDecimal.valueOf(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getTemporaryWeight() * 1000)
+                    .setScale(3, RoundingMode.HALF_UP)));
+        } else {
             weighbridgeOperatorPrint.setChallanNo(byTicketNo.getTpNo());
             weighbridgeOperatorPrint.setMaterialName(materialMasterRepository.findMaterialNameByMaterialId(byTicketNo.getMaterialId()));
             weighbridgeOperatorPrint.setSupplierName(supplierMasterRepository.findSupplierNameBySupplierId(byTicketNo.getSupplierId()));
-            weighbridgeOperatorPrint.setTareWeight(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getTareWeight()*1000);
-           weighbridgeOperatorPrint.setGrossWeight(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getTemporaryWeight()*1000);
+
+            // Round and set TareWeight
+            BigDecimal tareWeight = BigDecimal.valueOf(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getTareWeight()).setScale(3, RoundingMode.UP);
+
+            weighbridgeOperatorPrint.setTareWeight(String.valueOf(BigDecimal.valueOf(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getTareWeight() * 1000)
+                    .setScale(3, RoundingMode.HALF_UP)));
+            // Round and set GrossWeight
+            weighbridgeOperatorPrint.setGrossWeight(String.valueOf(BigDecimal.valueOf(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getTemporaryWeight() * 1000)
+                    .setScale(3, RoundingMode.HALF_UP)));
         }
+
         weighbridgeOperatorPrint.setTransporterName(transporterMasterRepository.findTransporterNameByTransporterId(byTicketNo.getTransporterId()));
 
         weighbridgeOperatorPrint.setCompanyName(companyMasterRepository.findCompanyNameByCompanyId(byTicketNo.getCompanyId()));
@@ -101,8 +108,9 @@ public class WeighbridgeOperatorPrintServiceImpl implements WeighbridgeOperatorP
         weighbridgeOperatorPrint.setTareWeightTime(timeFormat1);
 // Round and set NetWeight
         BigDecimal netWeight = BigDecimal.valueOf(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getNetWeight()).setScale(3, RoundingMode.UP);
-        weighbridgeOperatorPrint.setNetWeight(netWeight.doubleValue() * 1000);
-        System.out.println(weighbridgeOperatorPrint);
+        weighbridgeOperatorPrint.setNetWeight(String.valueOf(BigDecimal.valueOf(weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTicketNo.getTicketNo()).getNetWeight() * 1000)
+                .setScale(3, RoundingMode.HALF_UP)));
+        System.out.println("============="+netWeight);
         return weighbridgeOperatorPrint;
     }
 }

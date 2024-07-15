@@ -39,14 +39,14 @@ public class QualityFetchController {
     }
 
     @GetMapping("fetch-InboundTransaction")
-    public ResponseEntity<List<QualityDashboardResponse>> getInboundTransaction(@RequestParam String userId) {
-        List<QualityDashboardResponse> responses = qualityTransactionService.getInboundTransaction(userId);
+    public ResponseEntity<List<QualityDashboardResponse>> getInboundTransaction(@RequestParam(required = false) String userId,@RequestParam(required = false) String companyName,@RequestParam(required = false) String siteName) {
+        List<QualityDashboardResponse> responses = qualityTransactionService.getInboundTransaction(userId,companyName,siteName);
         return ResponseEntity.ok(responses);
     }
 
     @GetMapping("fetch-OutboundTransaction")
-    public ResponseEntity<List<QualityDashboardResponse>> getOutboundTransaction(String userId) {
-        List<QualityDashboardResponse> responses = qualityTransactionService.getOutboundTransaction(userId);
+    public ResponseEntity<List<QualityDashboardResponse>> getOutboundTransaction(@RequestParam(required = false) String userId,@RequestParam(required = false) String companyName,@RequestParam(required = false) String siteName) {
+        List<QualityDashboardResponse> responses = qualityTransactionService.getOutboundTransaction(userId,companyName,siteName);
         return ResponseEntity.ok(responses);
     }
 

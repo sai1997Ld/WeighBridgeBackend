@@ -36,9 +36,9 @@ public interface QualityTransactionService {
 
     void passQualityTransaction(Integer ticketNo, String userId);
 
-    List<QualityDashboardResponse> getInboundTransaction(String userId);
+    List<QualityDashboardResponse> getInboundTransaction(String userId,String companyName,String siteName);
 
-    List<QualityDashboardResponse> getOutboundTransaction(String userId);
+    List<QualityDashboardResponse> getOutboundTransaction(String userId,String companyName,String siteName);
 
     List<String> getAllMaterialAndProductNames();
 
