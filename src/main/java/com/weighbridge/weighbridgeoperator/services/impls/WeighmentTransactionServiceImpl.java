@@ -221,6 +221,7 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
 
     @Override
     public WeighbridgePageResponse getAllGateDetails(Pageable pageable,String userId) {
+        DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         UserMaster byId = userMasterRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("userId not found"));
         Page<Object[]> pageResult = weighmentTransactionRepository.getAllGateEntries(byId.getSite().getSiteId(),byId.getCompany().getCompanyId(),pageable);
         List<Object[]> allUsers = pageResult.getContent();
@@ -273,7 +274,8 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
                     }
                     response.setNetWeight(row[7] != null ? multiplyWeight(row[7]) : "");
                     response.setVehicleNo((String) row[9]);
-                    response.setVehicleFitnessUpTo((LocalDate) row[10]);
+                    LocalDate localDate= (LocalDate) row[10];
+                    response.setVehicleFitnessUpTo(localDate.format(formatter1));
                     if (((String) row[2]).equalsIgnoreCase("Inbound")) {
                         response.setSupplierName((String) row[11]);
                         response.setCustomerName("");
@@ -540,8 +542,9 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
             	    String.valueOf(BigDecimal.valueOf(weighmentTransaction.getTareWeight() * 1000)
             	        .setScale(3, RoundingMode.HALF_UP))
             	);
+            DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("dd-MM-yyyy");
             weighmentTransactionResponse.setVehicleNo(vehicleMasterRepository.findVehicleNoById(weighmentTransaction.getGateEntryTransaction().getVehicleId()));
-            weighmentTransactionResponse.setVehicleFitnessUpTo(vehicleMasterRepository.findVehicleFitnessById(weighmentTransaction.getGateEntryTransaction().getVehicleId()));
+            weighmentTransactionResponse.setVehicleFitnessUpTo(vehicleMasterRepository.findVehicleFitnessById(weighmentTransaction.getGateEntryTransaction().getVehicleId()).format(formatter1));
             if (weighmentTransaction.getGateEntryTransaction().getTransactionType().equalsIgnoreCase("Inbound")) {
                 weighmentTransactionResponse.setMaterialName(materialMasterRepository.findMaterialNameByMaterialId(weighmentTransaction.getGateEntryTransaction().getMaterialId()));
                 weighmentTransactionResponse.setMaterialType(weighmentTransaction.getGateEntryTransaction().getMaterialType());

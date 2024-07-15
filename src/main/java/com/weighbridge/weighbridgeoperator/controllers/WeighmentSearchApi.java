@@ -35,6 +35,7 @@ public class WeighmentSearchApi {
                                                                     @RequestParam(required = false) String supplierName,
                                                                     @RequestParam(required = false) String customerName,
                                                                     @RequestParam(required = false) String transporterName,
+                                                                    @RequestParam(required = false)String productName,
                                                                     @RequestParam(required = false) String materialName,
                                                                     @RequestParam(required = false) Boolean today,
                                                                     @RequestParam(defaultValue = "0") int page,
@@ -46,6 +47,7 @@ public class WeighmentSearchApi {
         criteria.setTransactionDate(transactionDate);
         criteria.setVehicleNo(vehicleNo);
         criteria.setSupplierName(supplierName);
+        criteria.setProductName(productName);
         criteria.setCustomerName(customerName);
         criteria.setTransporterName(transporterName);
         criteria.setMaterialName(materialName);

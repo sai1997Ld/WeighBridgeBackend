@@ -1,6 +1,7 @@
 package com.weighbridge.weighbridgeoperator.specification;
 
 import com.weighbridge.admin.entities.VehicleMaster;
+import com.weighbridge.admin.exceptions.ResourceNotFoundException;
 import com.weighbridge.admin.repsitories.*;
 import com.weighbridge.weighbridgeoperator.entities.WeighmentTransaction;
 import jakarta.persistence.criteria.*;
@@ -92,22 +93,34 @@ public class WeighmentTransactionSpecification implements Specification<Weighmen
             }
 
             if (criteria.getMaterialName() != null) {
-                long byMaterialIdByMaterialName = materialMasterRepository.findByMaterialIdByMaterialName(criteria.getMaterialName());
+                Long byMaterialIdByMaterialName = materialMasterRepository.findByMaterialIdByMaterialName(criteria.getMaterialName());
+                System.out.println("--------------"+byMaterialIdByMaterialName);
+                if (byMaterialIdByMaterialName==null){
+                    throw new ResourceNotFoundException("material Name mismatched or not found.");
+                }
                 Predicate combinedPredicate = builder.and(
                         builder.equal(root.get("gateEntryTransaction").get("materialId"), byMaterialIdByMaterialName),
                         builder.equal(root.get("gateEntryTransaction").get("siteId"), criteria.getSiteId()),
-                        builder.equal(root.get("gateEntryTransaction").get("companyId"), criteria.getCompanyId())
+                        builder.equal(root.get("gateEntryTransaction").get("companyId"), criteria.getCompanyId()),
+                        builder.equal(root.get("gateEntryTransaction").get("transactionType"), "Inbound")
                 );
                 predicates.add(combinedPredicate);
             }
             if (criteria.getProductName() != null) {
-                long productIdByProductName = productMasterRepository.findProductIdByProductName(criteria.getProductName());
-                Predicate combinedPredicate = builder.and(
-                        builder.equal(root.get("gateEntryTransaction").get("materialId"), productIdByProductName),
-                        builder.equal(root.get("gateEntryTransaction").get("siteId"), criteria.getSiteId()),
-                        builder.equal(root.get("gateEntryTransaction").get("companyId"), criteria.getCompanyId())
-                );
-                predicates.add(combinedPredicate);
+                System.out.println("+++++++++++++++++++++++++++");
+                Long productIdByProductName = productMasterRepository.findProductIdByProductName(criteria.getProductName());
+                if(productIdByProductName==null){
+                    throw new ResourceNotFoundException("productName mismatched or not found.");
+                }
+                    Predicate combinedPredicate = builder.and(
+                            builder.equal(root.get("gateEntryTransaction").get("materialId"), productIdByProductName),
+                            builder.equal(root.get("gateEntryTransaction").get("siteId"), criteria.getSiteId()),
+                            builder.equal(root.get("gateEntryTransaction").get("companyId"), criteria.getCompanyId()),
+                            builder.equal(root.get("gateEntryTransaction").get("transactionType"), "Outbound")
+                    );
+
+                    predicates.add(combinedPredicate);
+
             }
             if (criteria.getSupplierName() != null) {
                 List<Long> listSupplierIdBySupplierName = supplierMasterRepository.findListSupplierIdBySupplierName(criteria.getSupplierName());

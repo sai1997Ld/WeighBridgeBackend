@@ -18,7 +18,7 @@ public class WeighmentTransactionResponse {
         private String tareWeight;
         private String netWeight;
         private String vehicleNo;
-        private LocalDate vehicleFitnessUpTo;
+        private String vehicleFitnessUpTo;
         private String supplierName;
         private String customerName;
         private String transporterName;

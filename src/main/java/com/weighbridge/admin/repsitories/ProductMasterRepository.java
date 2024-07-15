@@ -15,7 +15,7 @@ public interface ProductMasterRepository extends JpaRepository<ProductMaster, Lo
     List<String> findAllProductNameByProductStatus(@Param("status") String status);
 
     @Query("SELECT pm.productId FROM ProductMaster pm WHERE pm.productName = :productName")
-    long findProductIdByProductName(@Param("productName") String productName);
+    Long findProductIdByProductName(@Param("productName") String productName);
 
     @Query("SELECT pm.productName FROM ProductMaster pm WHERE pm.productId = :productId")
     String findProductNameByProductId(@Param("productId") long productId);

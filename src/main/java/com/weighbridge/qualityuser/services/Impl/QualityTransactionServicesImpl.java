@@ -112,7 +112,7 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
 
 
         // Retrieve all transactions for the user's site and company, ordered by transaction date in descending order
-        List<GateEntryTransaction> allTransactions = gateEntryTransactionRepository.findBySiteIdAndCompanyIdOrderByTransactionDateDesc(userSite, userCompany);
+        List<GateEntryTransaction> allTransactions = gateEntryTransactionRepository.findBySiteIdAndCompanyIdOrderByTicketNoDesc(userSite, userCompany);
         List<QualityDashboardResponse> qualityDashboardResponses = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         DateTimeFormatter dateFormat=DateTimeFormatter.ofPattern("dd-MM-yyyy");
@@ -289,7 +289,6 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
         List<QualityDashboardResponse> completedList = getQCTCompleted(userId);
         return completedList.size();
     }
-
 
     @Override
     public List<QualityDashboardResponse> getQCTCompleted(String userId) {

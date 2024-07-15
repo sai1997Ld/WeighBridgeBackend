@@ -96,20 +96,28 @@ public class GateEntryTransactionSpecification implements Specification<GateEntr
         }
 
         if (criteria.getMaterialName() != null) {
-            long byMaterialIdByMaterialName = materialMasterRepository.findByMaterialIdByMaterialName(criteria.getMaterialName());
+            Long byMaterialIdByMaterialName = materialMasterRepository.findByMaterialIdByMaterialName(criteria.getMaterialName());
+            if (byMaterialIdByMaterialName==null){
+                throw new ResourceNotFoundException("materialName mismatched or not found");
+            }
             Predicate combinedPredicate = builder.and(
                     builder.equal(root.get("materialId"), byMaterialIdByMaterialName),
                     builder.equal(root.get("siteId"), criteria.getSiteId()),
-                    builder.equal(root.get("companyId"), criteria.getCompanyId())
+                    builder.equal(root.get("companyId"), criteria.getCompanyId()),
+                    builder.equal(root.get("transactionType"),"Inbound")
             );
             predicates.add(combinedPredicate);
         }
         if (criteria.getProductName() != null) {
-            long productIdByProductName = productMasterRepository.findProductIdByProductName(criteria.getProductName());
+            Long productIdByProductName = productMasterRepository.findProductIdByProductName(criteria.getProductName());
+            if(productIdByProductName==null){
+                throw new ResourceNotFoundException("productName mismatched or not found");
+            }
             Predicate combinedPredicate = builder.and(
                     builder.equal(root.get("materialId"), productIdByProductName),
                     builder.equal(root.get("siteId"), criteria.getSiteId()),
-                    builder.equal(root.get("companyId"), criteria.getCompanyId())
+                    builder.equal(root.get("companyId"), criteria.getCompanyId()),
+                    builder.equal(root.get("transactionType"),"Outbound")
             );
             predicates.add(combinedPredicate);
         }

@@ -22,7 +22,7 @@ public interface MaterialMasterRepository extends JpaRepository<MaterialMaster, 
 
 
     @Query("SELECT mm.materialId FROM MaterialMaster mm WHERE mm.materialName = :materialName")
-    long findByMaterialIdByMaterialName(@Param("materialName") String materialName);
+    Long findByMaterialIdByMaterialName(@Param("materialName") String materialName);
 
     @Query("SELECT m.materialName FROM MaterialMaster m WHERE m.materialId = :materialId")
     String findMaterialNameByMaterialId(@Param("materialId") long materialId);
