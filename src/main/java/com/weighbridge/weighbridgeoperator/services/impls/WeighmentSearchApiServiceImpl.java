@@ -210,6 +210,7 @@ public class WeighmentSearchApiServiceImpl implements WeighmentSearchApiService 
             weighmentTransactionResponse.setCustomerName(customerNameByCustomerId != null ? customerNameByCustomerId : "");
             weighmentTransactionResponse.setSupplierName(supplierNameBySupplierIdsearchField != null ? supplierNameBySupplierIdsearchField : "");
             weighmentTransactionResponse.setVehicleNo(byId.getVehicleNo());
+            weighmentTransactionResponse.setMaterialType(transaction.getGateEntryTransaction().getMaterialType());
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
             weighmentTransactionResponse.setVehicleIn(transaction.getGateEntryTransaction().getVehicleIn().format(formatter));
             weighmentTransactionResponse.setTransactionDate(transaction.getGateEntryTransaction().getTransactionDate());
@@ -277,6 +278,7 @@ public class WeighmentSearchApiServiceImpl implements WeighmentSearchApiService 
         weighmentTransactionResponse.setCustomerName(customerNameByCustomerId != null ? customerNameByCustomerId : "");
         weighmentTransactionResponse.setSupplierName(supplierNameBySupplierIdsearchField != null ? supplierNameBySupplierIdsearchField : "");
         weighmentTransactionResponse.setVehicleNo(byId.getVehicleNo());
+        weighmentTransactionResponse.setMaterialType(transaction.getMaterialType());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         weighmentTransactionResponse.setVehicleIn(transaction.getVehicleIn().format(formatter));
         weighmentTransactionResponse.setTransactionDate(transaction.getTransactionDate());
