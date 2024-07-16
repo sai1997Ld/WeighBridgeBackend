@@ -13,7 +13,7 @@ public class VehicleResponse {
     private Set<String> transporter;
     private String vehicleType;
     private String vehicleManufacturer;
-
+    private String loadCapacity;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate fitnessUpto;
     private String vehicleStatus;
