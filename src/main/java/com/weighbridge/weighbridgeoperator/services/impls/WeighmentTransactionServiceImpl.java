@@ -545,8 +545,9 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
             	        .setScale(3, RoundingMode.HALF_UP))
             	);
             DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            LocalDate date=vehicleMasterRepository.findVehicleFitnessById(weighmentTransaction.getGateEntryTransaction().getVehicleId());
             weighmentTransactionResponse.setVehicleNo(vehicleMasterRepository.findVehicleNoById(weighmentTransaction.getGateEntryTransaction().getVehicleId()));
-            weighmentTransactionResponse.setVehicleFitnessUpTo(vehicleMasterRepository.findVehicleFitnessById(weighmentTransaction.getGateEntryTransaction().getVehicleId()).format(formatter1));
+            weighmentTransactionResponse.setVehicleFitnessUpTo(date!=null?date.format(formatter1):"");
             if (weighmentTransaction.getGateEntryTransaction().getTransactionType().equalsIgnoreCase("Inbound")) {
                 weighmentTransactionResponse.setMaterialName(materialMasterRepository.findMaterialNameByMaterialId(weighmentTransaction.getGateEntryTransaction().getMaterialId()));
                 weighmentTransactionResponse.setMaterialType(weighmentTransaction.getGateEntryTransaction().getMaterialType());
