@@ -7,6 +7,7 @@ import com.weighbridge.admin.exceptions.ResourceNotFoundException;
 import com.weighbridge.admin.payloads.VehicleGateEntryResponse;
 import com.weighbridge.admin.payloads.VehicleRequest;
 import com.weighbridge.admin.payloads.VehicleResponse;
+import com.weighbridge.admin.payloads.VehicleResponsePage;
 import com.weighbridge.admin.repsitories.TransporterMasterRepository;
 import com.weighbridge.admin.repsitories.VehicleMasterRepository;
 import com.weighbridge.admin.services.VehicleMasterService;
@@ -101,14 +102,17 @@ public class VehicleMasterServiceImpl implements VehicleMasterService {
 
 
     @Override
-    public Page<VehicleResponse> vehicles(Pageable pageable) {
+    public VehicleResponsePage vehicles(Pageable pageable) {
         Page<VehicleMaster> responsePage = vehicleMasterRepository.findAll(pageable);
         Page<VehicleResponse> vehicleResponse = responsePage.map(vehicleMaster -> {
 
             return getVehicleResponse(vehicleMaster);
         });
-
-        return vehicleResponse;
+        VehicleResponsePage vehicleResponsePage= new VehicleResponsePage();
+        vehicleResponsePage.setTotalPages(vehicleResponse.getTotalPages());
+        vehicleResponsePage.setTotalElements(vehicleResponse.getTotalElements());
+        vehicleResponsePage.setTransactions(vehicleResponse.getContent());
+        return vehicleResponsePage;
     }
 
     @Override

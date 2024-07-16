@@ -4,6 +4,7 @@ import com.weighbridge.admin.dtos.VehicleMasterDto;
 import com.weighbridge.admin.payloads.VehicleGateEntryResponse;
 import com.weighbridge.admin.payloads.VehicleRequest;
 import com.weighbridge.admin.payloads.VehicleResponse;
+import com.weighbridge.admin.payloads.VehicleResponsePage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,7 @@ public interface VehicleMasterService {
 
     String addVehicle(VehicleRequest vehicleRequest, String transporterName,String userId);
 
-    Page<VehicleResponse> vehicles(Pageable pageable);
+    VehicleResponsePage vehicles(Pageable pageable);
 
     public VehicleResponse vehicleByNo(String vehicleNo);
 

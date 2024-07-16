@@ -6,6 +6,7 @@ import com.weighbridge.admin.entities.VehicleMaster;
 import com.weighbridge.admin.payloads.VehicleGateEntryResponse;
 import com.weighbridge.admin.payloads.VehicleRequest;
 import com.weighbridge.admin.payloads.VehicleResponse;
+import com.weighbridge.admin.payloads.VehicleResponsePage;
 import com.weighbridge.admin.repsitories.VehicleMasterRepository;
 import com.weighbridge.admin.services.VehicleMasterService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,10 +68,10 @@ public class VehicleMasterController {
      * @return ResponseEntity containing a list of vehicles and HTTP status OK.
      */
     @GetMapping()
-    public ResponseEntity<List<VehicleResponse>> getAllVehicles(@RequestParam(defaultValue = "0", required = false) int page,
-                                                                @RequestParam(defaultValue = "10", required = false) int size,
-                                                                @RequestParam(required = false, defaultValue = "vehicleModifiedDate") String sortField,
-                                                                @RequestParam(defaultValue = "desc", required = false) String sortOrder) {
+    public ResponseEntity<VehicleResponsePage> getAllVehicles(@RequestParam(defaultValue = "0", required = false) int page,
+                                                              @RequestParam(defaultValue = "10", required = false) int size,
+                                                              @RequestParam(required = false, defaultValue = "vehicleModifiedDate") String sortField,
+                                                              @RequestParam(defaultValue = "desc", required = false) String sortOrder) {
 
         Pageable pageable;
 
@@ -82,9 +83,8 @@ public class VehicleMasterController {
             pageable = PageRequest.of(page, size);
         }
 
-        Page<VehicleResponse> vehiclePage = vehicleMasterService.vehicles(pageable);
-        List<VehicleResponse> vehicleLists = vehiclePage.getContent();
-        return ResponseEntity.ok(vehicleLists);
+        VehicleResponsePage vehiclePage = vehicleMasterService.vehicles(pageable);
+        return ResponseEntity.ok(vehiclePage);
     }
     /**
      * Endpoint for retrieving a vehicle by vehicle number.
