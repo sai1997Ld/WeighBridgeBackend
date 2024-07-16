@@ -27,6 +27,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -238,7 +240,9 @@ public class WeighmentSearchApiServiceImpl implements WeighmentSearchApiService 
                 weighmentTransactionResponse.setMaterialName(productNameByProductId != null ? productNameByProductId : "");
             }
             weighmentTransactionResponse.setTransactionType(transaction.getGateEntryTransaction().getTransactionType());
-            weighmentTransactionResponse.setNetWeight(String.valueOf(transaction.getNetWeight()) != null ? String.valueOf(transaction.getNetWeight()*1000) : "");
+        BigDecimal netWeight = transaction != null && transaction.getNetWeight() != 0 ? BigDecimal.valueOf(transaction.getNetWeight()).multiply(BigDecimal.valueOf(1000)).setScale(3, RoundingMode.HALF_UP) : null;
+        weighmentTransactionResponse.setNetWeight(netWeight != null ? netWeight.toString() : "");
+         //   weighmentTransactionResponse.setNetWeight(String.valueOf(transaction.getNetWeight()) != null ? String.valueOf(BigDecimal.valueOf(transaction.getNetWeight()*1000)) : "");
             weighmentTransactionResponse.setTransporterName(transporterNameByTransporterId != null ? transporterNameByTransporterId : "");
             return weighmentTransactionResponse;
     }
@@ -314,7 +318,9 @@ public class WeighmentSearchApiServiceImpl implements WeighmentSearchApiService 
             weighmentTransactionResponse.setMaterialName(productNameByProductId != null ? productNameByProductId : "");
         }
         weighmentTransactionResponse.setTransactionType(transaction.getTransactionType());
-        weighmentTransactionResponse.setNetWeight(byId1 != null ? String.valueOf(byId1.getNetWeight()*1000) : "");
+        BigDecimal netWeight = byId1 != null && byId1.getNetWeight() != 0 ? BigDecimal.valueOf(byId1.getNetWeight()).multiply(BigDecimal.valueOf(1000)).setScale(3, RoundingMode.HALF_UP) : null;
+        weighmentTransactionResponse.setNetWeight(netWeight != null ? netWeight.toString() : "");
+       // weighmentTransactionResponse.setNetWeight(byId1 != null ? String.valueOf(byId1.getNetWeight()*1000) : "");
         weighmentTransactionResponse.setTransporterName(transporterNameByTransporterId != null ? transporterNameByTransporterId : "");
         return weighmentTransactionResponse;
     }

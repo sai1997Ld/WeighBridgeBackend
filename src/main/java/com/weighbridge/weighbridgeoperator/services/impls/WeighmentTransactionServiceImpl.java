@@ -272,7 +272,9 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
                             response.setTareWeight("");
                         }
                     }
-                    response.setNetWeight(row[7] != null ? multiplyWeight(row[7]) : "");
+                    BigDecimal netWeight = row[7] != null? BigDecimal.valueOf((Double) row[7]).multiply(BigDecimal.valueOf(1000)).setScale(3, RoundingMode.HALF_UP) : null;
+                    response.setNetWeight(netWeight != null ? netWeight.toString() : "");
+                 //   response.setNetWeight(row[7] != null ? multiplyWeight(row[7]) : "");
                     response.setVehicleNo((String) row[9]);
                     LocalDate localDate= (LocalDate) row[10];
                     response.setVehicleFitnessUpTo(localDate!=null?localDate.format(formatter1):"");
