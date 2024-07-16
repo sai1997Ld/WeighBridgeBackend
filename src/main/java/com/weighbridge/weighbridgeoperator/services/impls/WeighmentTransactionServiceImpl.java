@@ -275,7 +275,7 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
                     response.setNetWeight(row[7] != null ? multiplyWeight(row[7]) : "");
                     response.setVehicleNo((String) row[9]);
                     LocalDate localDate= (LocalDate) row[10];
-                    response.setVehicleFitnessUpTo(localDate.format(formatter1));
+                    response.setVehicleFitnessUpTo(localDate!=null?localDate.format(formatter1):"");
                     if (((String) row[2]).equalsIgnoreCase("Inbound")) {
                         response.setSupplierName((String) row[11]);
                         response.setCustomerName("");

@@ -569,7 +569,7 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
             response.setTpNo(transaction.getTpNo());
             response.setSupplyConsignmentWeight(transaction.getSupplyConsignmentWeight());
             response.setTransporter(transporterName);
-            response.setChallanDate(transaction.getChallanDate().format(dateFormat));
+            response.setChallanDate(transaction.getChallanDate()!=null?transaction.getChallanDate().format(dateFormat):"");
             response.setEwayBillNo(transaction.getEwaybillNo());
             response.setDriverName(transaction.getDriverName());
             response.setDlNo(transaction.getDlNo());
@@ -586,7 +586,7 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
             }else{
                 response.setImagesMap(stringMap);
             }
-           /* QualityTransaction byTicketNo = qualityTransactionRepository.findByTicketNo(transaction.getTicketNo());
+/*            QualityTransaction byTicketNo = qualityTransactionRepository.findByTicketNo(transaction.getTicketNo());
             if (byTicketNo != null) {
                 response.setQuality(true);
             } else {
@@ -611,6 +611,7 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
      * @return A message indicating whether the vehicle can exit or not.
      * @throws ResponseStatusException If the session is expired and login is required, or if the vehicle's tare weight is not measured yet.
      */
+
     @Override
     public String setOutTime(Integer ticketNo,String userId,MultipartFile frontImg1, MultipartFile backImg2, MultipartFile topImg3,
                              MultipartFile bottomImg4, MultipartFile leftImg5,
@@ -626,7 +627,6 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
             }
             cameraViewService.uploadImages(ticketNo,frontImg1,backImg2,topImg3,bottomImg4,leftImg5,rightImg6,role,"EXIT"); // for nextCloud
 //            cameraViewService.uploadImagesUserId(ticketNo, frontImg1, backImg2, topImg3, bottomImg4, leftImg5, rightImg6, role,"EXIT",userId); // for server Path
-
             List<String> allowedStatusCodes = gateEntryTransaction.getTransactionType().equalsIgnoreCase("Inbound") ? Arrays.asList("GWT", "TWT") : Arrays.asList("GWT", "TWT");
             System.out.println(allowedStatusCodes);
             List<String> statusCodesByTicket = transactionLogRepository.findStatusCodesByTicket(ticketNo);

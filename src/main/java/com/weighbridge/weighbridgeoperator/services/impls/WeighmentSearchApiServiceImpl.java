@@ -90,7 +90,7 @@ public class WeighmentSearchApiServiceImpl implements WeighmentSearchApiService 
             WeighmentTransactionResponse weighmentTransactionResponse = new WeighmentTransactionResponse();
             weighmentTransactionResponse.setTicketNo(String.valueOf(byWeighmentId.getTicketNo()));
             weighmentTransactionResponse.setWeighmentNo(weight != null ? String.valueOf(weight.getWeighmentNo()) : "");
-            weighmentTransactionResponse.setVehicleFitnessUpTo(byId.getVehicleFitnessUpTo().format(formatter1));
+            weighmentTransactionResponse.setVehicleFitnessUpTo(byId.getVehicleFitnessUpTo()!=null?byId.getVehicleFitnessUpTo().format(formatter1):"");
             weighmentTransactionResponse.setTransactionType(byWeighmentId.getTransactionType());
             weighmentTransactionResponse.setCustomerName(customerNameByCustomerId != null ? customerNameByCustomerId : "");
             weighmentTransactionResponse.setSupplierName(supplierNameBySupplierIdsearchField != null ? supplierNameBySupplierIdsearchField : "");
@@ -205,11 +205,12 @@ public class WeighmentSearchApiServiceImpl implements WeighmentSearchApiService 
             WeighmentTransactionResponse weighmentTransactionResponse = new WeighmentTransactionResponse();
             weighmentTransactionResponse.setTicketNo(String.valueOf(transaction.getGateEntryTransaction().getTicketNo()));
             weighmentTransactionResponse.setWeighmentNo(String.valueOf(transaction.getWeighmentNo()));
-            weighmentTransactionResponse.setVehicleFitnessUpTo(byId.getVehicleFitnessUpTo().format(formatter1));
+            weighmentTransactionResponse.setVehicleFitnessUpTo(byId.getVehicleFitnessUpTo()!=null?byId.getVehicleFitnessUpTo().format(formatter1):"");
             weighmentTransactionResponse.setTransactionType(transaction.getGateEntryTransaction().getTransactionType());
             weighmentTransactionResponse.setCustomerName(customerNameByCustomerId != null ? customerNameByCustomerId : "");
             weighmentTransactionResponse.setSupplierName(supplierNameBySupplierIdsearchField != null ? supplierNameBySupplierIdsearchField : "");
             weighmentTransactionResponse.setVehicleNo(byId.getVehicleNo());
+            weighmentTransactionResponse.setMaterialType(transaction.getGateEntryTransaction().getMaterialType());
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
             weighmentTransactionResponse.setVehicleIn(transaction.getGateEntryTransaction().getVehicleIn().format(formatter));
             weighmentTransactionResponse.setTransactionDate(transaction.getGateEntryTransaction().getTransactionDate());
@@ -272,11 +273,12 @@ public class WeighmentSearchApiServiceImpl implements WeighmentSearchApiService 
         WeighmentTransaction byId1 = weighmentTransactionRepository.findByGateEntryTransactionTicketNo(transaction.getTicketNo());
         WeighmentTransactionResponse weighmentTransactionResponse = new WeighmentTransactionResponse();
         weighmentTransactionResponse.setTicketNo(String.valueOf(transaction.getTicketNo()));
-        weighmentTransactionResponse.setVehicleFitnessUpTo(byId.getVehicleFitnessUpTo().format(formatter1));
+        weighmentTransactionResponse.setVehicleFitnessUpTo(byId.getVehicleFitnessUpTo()!=null?byId.getVehicleFitnessUpTo().format(formatter1):"");
         weighmentTransactionResponse.setTransactionType(transaction.getTransactionType());
         weighmentTransactionResponse.setCustomerName(customerNameByCustomerId != null ? customerNameByCustomerId : "");
         weighmentTransactionResponse.setSupplierName(supplierNameBySupplierIdsearchField != null ? supplierNameBySupplierIdsearchField : "");
         weighmentTransactionResponse.setVehicleNo(byId.getVehicleNo());
+        weighmentTransactionResponse.setMaterialType(transaction.getMaterialType());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         weighmentTransactionResponse.setVehicleIn(transaction.getVehicleIn().format(formatter));
         weighmentTransactionResponse.setTransactionDate(transaction.getTransactionDate());
