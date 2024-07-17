@@ -1077,7 +1077,7 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
 
 
     @Override
-    public GateEntryTransactionPageResponse findTransactionsByFiltering(Integer ticketNo, String vehicleNo, LocalDate date, String supplierNameC, String transactionType, Pageable pageable, String vehicleStatus,String userId) {
+    public GateEntryTransactionPageResponse findTransactionsByFiltering(Integer ticketNo, String vehicleNo, LocalDate date, String supplierNameC, String transactionType, Pageable pageable, String vehicleStatus,String userId,String materialName,String productName) {
         try {
             // Set user session details
             UserMaster userMaster = userMasterRepository.findById(userId).orElseThrow(()-> new IllegalArgumentException("User Not Found "+userId));
@@ -1086,7 +1086,7 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "UserSite Not Found! "));
             String userCompany = (String) Optional.ofNullable(userMaster.getCompany().getCompanyId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "UserCompany Not Found! "));
-            Page<GateEntryTransaction> gateEntryTransactionPage = gateEntryTransactionRepository.findAll(gateEntryTransactionSpecification.getTransactions(ticketNo, vehicleNo, date, supplierNameC, transactionType, vehicleStatus)
+            Page<GateEntryTransaction> gateEntryTransactionPage = gateEntryTransactionRepository.findAll(gateEntryTransactionSpecification.getTransactions(ticketNo, vehicleNo, date, supplierNameC, transactionType, vehicleStatus,materialName,productName)
                     .and(gateEntryTransactionSpecification.filterBySiteAndCompany(userSite, userCompany)), pageable);
             // Convert Page content to List
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
@@ -1114,8 +1114,8 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
                                 response.setSupplier(supplierName);
                                 response.setSupplierAddress(supplierAddress);
                             }
-                            String materialName = materialMasterRepository.findMaterialNameByMaterialId(transaction.getMaterialId());
-                            response.setMaterial(materialName);
+                            String materialName1 = materialMasterRepository.findMaterialNameByMaterialId(transaction.getMaterialId());
+                            response.setMaterial(materialName1);
                         } else if ("Outbound".equals(transaction.getTransactionType())) {
                             Object[] customerNameByCustomerId = customerMasterRepository.findCustomerNameAndAddressBycustomerId(transaction.getCustomerId());
                             // Outbound transaction
@@ -1126,8 +1126,8 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
                                 response.setCustomer(customerName);
                                 response.setCustomerAddress(customerAddress);
                             }
-                            String materialName = productMasterRepository.findProductNameByProductId(transaction.getMaterialId());
-                            response.setMaterial(materialName);
+                            String materialName1 = productMasterRepository.findProductNameByProductId(transaction.getMaterialId());
+                            response.setMaterial(materialName1);
                         }
                         Object[] vehicleInfo = (Object[]) vehicleNoAndVehicleTypeAndVehicleWheelsNoByVehicleId[0];
                         if (vehicleInfo != null && vehicleInfo.length >= 3) {

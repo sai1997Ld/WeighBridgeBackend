@@ -55,7 +55,7 @@ public interface GateEntryTransactionService {
 
     GateEntryTransactionPageResponse getAllCompletedGateEntry(Pageable pageable, String userId);
 
-    GateEntryTransactionPageResponse findTransactionsByFiltering(Integer ticketNo, String vehicleNo, LocalDate date, String supplierName, String transactionType, Pageable pageable,String vehicleStatus,String userId);
+    GateEntryTransactionPageResponse findTransactionsByFiltering(Integer ticketNo, String vehicleNo, LocalDate date, String supplierName, String transactionType, Pageable pageable,String vehicleStatus,String userId,String materialName,String productName);
 
     GateEntryPrint getPrintTicketWise(Integer ticketNo);
 

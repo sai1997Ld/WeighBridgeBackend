@@ -131,7 +131,9 @@ public class GateEntryTransactionController {
             @RequestParam(required = false) String vehicleNo,
             @RequestParam(required = false) String transactionType,
             @RequestParam(required = false) String supplierName,
-            @RequestParam(required = false) LocalDate date) {
+            @RequestParam(required = false) LocalDate date,
+            @RequestParam(required = false)String materialName,
+            @RequestParam(required = false)String productName) {
         Pageable pageable;
         if (sortField != null && !sortField.isEmpty()) {
             Sort.Direction direction = sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
@@ -140,7 +142,7 @@ public class GateEntryTransactionController {
         } else {
             pageable = PageRequest.of(page, size);
         }
-        GateEntryTransactionPageResponse transactionsByFiltering = gateEntryTransactionService.findTransactionsByFiltering(ticketNo, vehicleNo, date, supplierName, transactionType, pageable, vehicleStatus, userId);
+        GateEntryTransactionPageResponse transactionsByFiltering = gateEntryTransactionService.findTransactionsByFiltering(ticketNo, vehicleNo, date, supplierName, transactionType, pageable, vehicleStatus, userId,materialName,productName);
         return transactionsByFiltering;
     }
 
@@ -156,7 +158,9 @@ public class GateEntryTransactionController {
             @RequestParam(required = false) String transactionType,
             @RequestParam(required = false) String supplierName,
             @RequestParam String userId,
-            @RequestParam(required = false) LocalDate date) {
+            @RequestParam(required = false) LocalDate date,
+            @RequestParam(required = false)String materialName,
+            @RequestParam(required = false)String productName) {
         Pageable pageable;
         if (sortField != null && !sortField.isEmpty()) {
             Sort.Direction direction = sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
@@ -165,7 +169,7 @@ public class GateEntryTransactionController {
         } else {
             pageable = PageRequest.of(page, size);
         }
-        GateEntryTransactionPageResponse transactionsByFiltering = gateEntryTransactionService.findTransactionsByFiltering(ticketNo, vehicleNo, date, supplierName, transactionType, pageable, vehicleStatus, userId);
+        GateEntryTransactionPageResponse transactionsByFiltering = gateEntryTransactionService.findTransactionsByFiltering(ticketNo, vehicleNo, date, supplierName, transactionType, pageable, vehicleStatus, userId,materialName,productName);
         return transactionsByFiltering;
     }
 

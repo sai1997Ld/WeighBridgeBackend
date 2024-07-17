@@ -219,6 +219,7 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
     }
 
 
+
     @Override
     public WeighbridgePageResponse getAllGateDetails(Pageable pageable,String userId) {
         DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("dd-MM-yyyy");
