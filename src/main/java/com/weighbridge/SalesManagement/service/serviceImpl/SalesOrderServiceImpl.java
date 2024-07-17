@@ -202,7 +202,8 @@ public class SalesOrderServiceImpl implements SalesOrderService {
            // vehicleAndTransporterDetail.setCustomerAddress();
             vehicleAndTransporterDetail.setSaleOrderNo(salesProcess.getPurchaseSale().getSaleOrderNo());
             vehicleAndTransporterDetail.setPurchaseOrderNo(salesProcess.getPurchaseSale().getPurchaseOrderNo());
-            vehicleAndTransporterDetail.setSaleOrderDate(salesProcess.getPurchaseSale().getPurchaseOrderedDate().format(dateFormatter));
+            String saleOrderDate = salesProcess.getPurchaseProcessDate() != null ? salesProcess.getPurchaseProcessDate().format(dateFormatter) : "";
+            vehicleAndTransporterDetail.setSaleOrderDate(saleOrderDate);
             listOfVehicle.add(vehicleAndTransporterDetail);
         }
         SalesUserPageResponse salesUserPageResponse=new SalesUserPageResponse();
