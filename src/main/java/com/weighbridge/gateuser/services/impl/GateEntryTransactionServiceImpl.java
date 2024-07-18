@@ -1086,6 +1086,7 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "UserSite Not Found! "));
             String userCompany = (String) Optional.ofNullable(userMaster.getCompany().getCompanyId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "UserCompany Not Found! "));
+
             Page<GateEntryTransaction> gateEntryTransactionPage = gateEntryTransactionRepository.findAll(gateEntryTransactionSpecification.getTransactions(ticketNo, vehicleNo, date, supplierNameC, transactionType, vehicleStatus,materialName,productName)
                     .and(gateEntryTransactionSpecification.filterBySiteAndCompany(userSite, userCompany)), pageable);
             // Convert Page content to List

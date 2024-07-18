@@ -68,20 +68,24 @@ public class GateEntryTransactionSpecification {
                     predicate = criteriaBuilder.and(predicate, criteriaBuilder.isNull(root.get("customerId")));
                 }
             }
-
-            if(materialName!=null){
+            if(StringUtils.hasText(materialName)){
                 Long byMaterialIdByMaterialName = materialMasterRepository.findByMaterialIdByMaterialName(materialName);
+                Long productIdByProductName = productMasterRepository.findProductIdByProductName(materialName);
                 if(byMaterialIdByMaterialName!=null) {
-                    predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("materialId"), byMaterialIdByMaterialName));
+                    predicate = criteriaBuilder.and(predicate,
+                            criteriaBuilder.equal(root.get("materialId"), byMaterialIdByMaterialName),
+                            criteriaBuilder.equal(root.get("transactionType"), "Inbound")
+                    );
+                }
+                if(productIdByProductName!=null){
+                    predicate = criteriaBuilder.and(
+                            predicate,
+                            criteriaBuilder.equal(root.get("materialId"), productIdByProductName),
+                            criteriaBuilder.equal(root.get("transactionType"), "Outbound")
+                    );
                 }
             }
 
-            if(productName!=null){
-                Long productIdByProductName = productMasterRepository.findProductIdByProductName(productName);
-                if(productIdByProductName!=null){
-                    predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("materialId"), productIdByProductName));
-                }
-            }
 
             return predicate;
         };
