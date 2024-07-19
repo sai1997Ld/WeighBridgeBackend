@@ -24,7 +24,7 @@ public interface QualityTransactionService {
      * @param ticketNo the ticket number for which the quality transaction is being created
      * @return a string representing the result of the operation
      */
-    String createQualityTransaction(Integer ticketNo, String userId, Map<String, Double> transactionRequest);
+    String createQualityTransaction(Integer ticketNo, String userId, Map<String, Object> transactionRequest);
 
     /**
      * Retrieves a report response for a given ticket number.

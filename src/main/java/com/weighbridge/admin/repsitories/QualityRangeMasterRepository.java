@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface QualityRangeMasterRepository extends JpaRepository<QualityRangeMaster, Long> {
 
@@ -51,5 +52,8 @@ public interface QualityRangeMasterRepository extends JpaRepository<QualityRange
     boolean existsByParameterNameAndMaterialMasterMaterialIdAndSupplierNameAndSupplierAddress(String parameterName, long materialId, String supplierName, String supplierAddress);
 
 
+ QualityRangeMaster findByMaterialMasterMaterialIdAndParameterName(long materialId, String size);
+
+    QualityRangeMaster findByProductMasterProductIdAndParameterName(long productId, String size);
 }
 

@@ -80,7 +80,7 @@ public class QualityTransactionController {
     @PostMapping("/{ticketNo}")
     public ResponseEntity<String> createQualityTransaction(@PathVariable Integer ticketNo,
                                                            @RequestParam String userId,
-                                                           @RequestBody Map<String, Double> transactionRequest) {
+                                                           @RequestBody Map<String, Object> transactionRequest) {
         String response = qualityTransactionService.createQualityTransaction(ticketNo, userId, transactionRequest);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

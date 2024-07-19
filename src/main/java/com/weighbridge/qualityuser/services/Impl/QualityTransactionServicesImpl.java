@@ -389,7 +389,7 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
 
     @Transactional
     @Override
-    public String createQualityTransaction(Integer ticketNo, String userId, Map<String, Double> transactionRequest) {
+    public String createQualityTransaction(Integer ticketNo, String userId, Map<String, Object> transactionRequest) {
         UserMaster userMaster = Optional.ofNullable(userMasterRepository.findByUserId(userId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Session timed out, Login again!"));
 
@@ -424,17 +424,23 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
         }
     }
 
-    private void handleInboundTransaction(GateEntryTransaction gateEntryTransaction, Map<String, Double> transactionRequest, StringBuilder qualityRangeIds, StringBuilder qualityValues, boolean isQualityGood) {
+    private void handleInboundTransaction(GateEntryTransaction gateEntryTransaction, Map<String, Object> transactionRequest, StringBuilder qualityRangeIds, StringBuilder qualityValues, boolean isQualityGood) {
         String materialName = materialMasterRepository.findMaterialNameByMaterialId(gateEntryTransaction.getMaterialId());
         SupplierMaster supplierMaster = supplierMasterRepository.findBySupplierId(gateEntryTransaction.getSupplierId());
         String supplierAddress = supplierMaster.getSupplierAddressLine1() + "," + supplierMaster.getSupplierAddressLine2();
 
-        for (Map.Entry<String, Double> entry : transactionRequest.entrySet()) {
+        for (Map.Entry<String, Object> entry : transactionRequest.entrySet()) {
             String key = entry.getKey();
-            Double value = entry.getValue();
-
-            if (value == null) {
+           Object obj = entry.getValue();
+           Double value = null;
+            if(key.equalsIgnoreCase("Size")){
+                continue;
+            }
+            if (obj == null) {
                 throw new IllegalArgumentException("Quality value for " + key + " cannot be null");
+            }
+            if(obj instanceof Double){
+                value= (Double) obj;
             }
 
             Long qualityId = qualityRangeMasterRepository.findQualityRangeIdByParameterNameAndMaterialMasterMaterialNameAndSupplierNameAndSupplierAddress(key, materialName, supplierMaster.getSupplierName(), supplierAddress);
@@ -449,17 +455,25 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
         }
     }
 
-    private void handleOutboundTransaction(GateEntryTransaction gateEntryTransaction, Map<String, Double> transactionRequest, StringBuilder qualityRangeIds, StringBuilder qualityValues, boolean isQualityGood) {
+    private void handleOutboundTransaction(GateEntryTransaction gateEntryTransaction, Map<String, Object> transactionRequest, StringBuilder qualityRangeIds, StringBuilder qualityValues, boolean isQualityGood) {
         String productName = productMasterRepository.findProductNameByProductId(gateEntryTransaction.getMaterialId());
 
-        for (Map.Entry<String, Double> entry : transactionRequest.entrySet()) {
+        for (Map.Entry<String,Object> entry : transactionRequest.entrySet()) {
             String key = entry.getKey();
-            Double value = entry.getValue();
+            Object obj= entry.getValue();
+            Double value=null;
+            System.out.println(obj instanceof String);
 
-            if (value == null) {
+            if(key.equalsIgnoreCase("Size")){
+                continue;
+            }
+            if (obj == null) {
                 throw new IllegalArgumentException("Quality value for " + key + " cannot be null");
             }
-
+            if(obj instanceof String){
+                System.out.println("======"+(String) obj);
+                value= Double.parseDouble((String) obj);
+            }
             Long qualityId = qualityRangeMasterRepository.findQualityRangeIdByParameterNameAndProductMasterProductName(key, productName);
             QualityRangeMaster qualityRangeMaster = qualityRangeMasterRepository.findById(qualityId)
                     .orElseThrow(() -> new ResourceNotFoundException("Range not found for qualityId: " + qualityId));
@@ -469,6 +483,7 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
             }
             qualityRangeIds.append(qualityId).append(",");
             qualityValues.append(value).append(",");
+
         }
     }
 
@@ -555,6 +570,22 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
                     dynamicQualityParameters.put(parameterName, Double.valueOf(value));
                 }
                 reportResponse.setQualityParameters(dynamicQualityParameters);
+                if(gateEntryTransaction.getTransactionType().equalsIgnoreCase("Inbound")){
+                    QualityRangeMaster byMaterialIdAndParameterName = qualityRangeMasterRepository.findByMaterialMasterMaterialIdAndParameterName(gateEntryTransaction.getMaterialId(),"Size");
+                    if(byMaterialIdAndParameterName!=null) {
+                        Double rangeFrom = byMaterialIdAndParameterName.getRangeFrom();
+                        Double rangeTo = byMaterialIdAndParameterName.getRangeTo();
+                        reportResponse.setSize(rangeFrom + "MM~" + rangeTo + "MM");
+                    }
+                }
+                else{
+                    QualityRangeMaster byMaterialIdAndParameterName = qualityRangeMasterRepository.findByProductMasterProductIdAndParameterName(gateEntryTransaction.getMaterialId(),"Size");
+                    if(byMaterialIdAndParameterName!=null) {
+                        Double rangeFrom = byMaterialIdAndParameterName.getRangeFrom();
+                        Double rangeTo = byMaterialIdAndParameterName.getRangeTo();
+                        reportResponse.setSize(rangeFrom + "MM~" + rangeTo + "MM");
+                    }
+                }
                 //for enable and disable report for quality user
                 //set the quality parameters present
                 reportResponse.setQualityParametersPresent(!dynamicQualityParameters.isEmpty());
