@@ -1,8 +1,6 @@
 package com.weighbridge.management.payload;
 
-import com.weighbridge.admin.repsitories.CustomerMasterRepository;
-import com.weighbridge.admin.repsitories.SupplierMasterRepository;
-import com.weighbridge.admin.repsitories.VehicleMasterRepository;
+import com.weighbridge.admin.repsitories.*;
 import com.weighbridge.gateuser.entities.GateEntryTransaction;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +19,12 @@ public class ManagementGateEntryTransactionSpecification {
     private CustomerMasterRepository customerMasterRepository;
     @Autowired
     private SupplierMasterRepository supplierMasterRepository;
-    public Specification<GateEntryTransaction> getTransactions(Integer ticketNo, String vehicleNo, LocalDate date, String supplierName, String transactionType,String vehicleStatus) {
+    @Autowired
+    private MaterialMasterRepository materialMasterRepository;
+
+    @Autowired
+    private ProductMasterRepository productMasterRepository;
+    public Specification<GateEntryTransaction> getTransactions(Integer ticketNo, String vehicleNo, LocalDate date, String supplierName, String transactionType,String vehicleStatus,String materialName) {
         return (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
 
@@ -63,7 +66,23 @@ public class ManagementGateEntryTransactionSpecification {
                     predicate = criteriaBuilder.and(predicate, criteriaBuilder.isNull(root.get("customerId")));
                 }
             }
-
+            if(StringUtils.hasText(materialName)){
+                Long byMaterialIdByMaterialName = materialMasterRepository.findByMaterialIdByMaterialName(materialName);
+                Long productIdByProductName = productMasterRepository.findProductIdByProductName(materialName);
+                if(byMaterialIdByMaterialName!=null) {
+                    predicate = criteriaBuilder.and(predicate,
+                            criteriaBuilder.equal(root.get("materialId"), byMaterialIdByMaterialName),
+                            criteriaBuilder.equal(root.get("transactionType"), "Inbound")
+                    );
+                }
+                if(productIdByProductName!=null){
+                    predicate = criteriaBuilder.and(
+                            predicate,
+                            criteriaBuilder.equal(root.get("materialId"), productIdByProductName),
+                            criteriaBuilder.equal(root.get("transactionType"), "Outbound")
+                    );
+                }
+            }
             return predicate;
         };
     }

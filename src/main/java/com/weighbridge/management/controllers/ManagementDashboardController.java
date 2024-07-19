@@ -119,7 +119,8 @@ public class ManagementDashboardController {
             @RequestParam(required = false) String siteName,
             @RequestParam(required = false) String transactionType,
             @RequestParam(required = false) String supplierName,
-            @RequestParam(required = false) LocalDate date) {
+            @RequestParam(required = false) LocalDate date,
+            @RequestParam(required = false) String materialName) {
         Pageable pageable;
         if(sortField!=null && !sortField.isEmpty()){
             Sort.Direction direction = sortOrder.equalsIgnoreCase("desc")?Sort.Direction.DESC:Sort.Direction.ASC;
@@ -130,7 +131,8 @@ public class ManagementDashboardController {
         else{
             pageable = PageRequest.of(page,size);
         }
-        ManagementGateEntryList managementGateEntryList = managementDashboardService.gateEntryList(ticketNo, vehicleNo, date, supplierName, transactionType, pageable, vehicleStatus,companyName, siteName);
+        ManagementGateEntryList managementGateEntryList = managementDashboardService.gateEntryList(
+                ticketNo, vehicleNo, date, supplierName, transactionType, pageable, vehicleStatus,companyName, siteName,materialName);
         return managementGateEntryList;
     }
 }
