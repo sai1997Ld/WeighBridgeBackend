@@ -391,7 +391,7 @@ public class ManagementDashboardServiceImpl implements ManagementDashboardServic
     }
     @Override
 
-    public ManagementGateEntryList gateEntryList(Integer ticketNo, String vehicleNo, LocalDate date, String supplierName, String transactionType, Pageable pageable, String vehicleStatus, String company, String site) {
+    public ManagementGateEntryList gateEntryList(Integer ticketNo, String vehicleNo, LocalDate date, String supplierName, String transactionType, Pageable pageable, String vehicleStatus, String company, String site,String materialName) {
         // Fetch company ID
         String companyId = companyMasterRepository.findCompanyIdByCompanyName(company);
         if (companyId == null) {
@@ -411,7 +411,7 @@ public class ManagementDashboardServiceImpl implements ManagementDashboardServic
 
         // Fetch GateEntryTransaction data using specifications and pagination
         Page<GateEntryTransaction> gateEntryTransactionPage = gateEntryTransactionRepository.findAll(
-                managementGateEntryTransactionSpecification.getTransactions(ticketNo, vehicleNo, date, supplierName, transactionType, vehicleStatus)
+                managementGateEntryTransactionSpecification.getTransactions(ticketNo, vehicleNo, date, supplierName, transactionType, vehicleStatus,materialName)
                         .and(managementGateEntryTransactionSpecification.filterBySiteAndCompany(siteId, companyId)), pageable);
 
         // Map GateEntryTransaction to ManagementGateEntryTransactionResponse
