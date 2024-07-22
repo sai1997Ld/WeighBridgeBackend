@@ -103,14 +103,18 @@ public class GateEntryTransactionSpecification implements Specification<GateEntr
             if (byMaterialIdByMaterialName != null) {
                 Predicate combinedPredicate = builder.and(
                         builder.equal(root.get("materialId"), byMaterialIdByMaterialName),
-                        builder.equal(root.get("transactionType"), "Inbound")
+                        builder.equal(root.get("transactionType"), "Inbound"),
+                        builder.equal(root.get("siteId"), criteria.getSiteId()),
+                        builder.equal(root.get("companyId"), criteria.getCompanyId())
                 );
                 predicates.add(combinedPredicate);
             }
             if (productIdByProductName != null) {
                 Predicate combinedPredicate = builder.and(
                         builder.equal(root.get("materialId"), productIdByProductName),
-                        builder.equal(root.get("transactionType"), "Outbound")
+                        builder.equal(root.get("transactionType"), "Outbound"),
+                        builder.equal(root.get("siteId"), criteria.getSiteId()),
+                        builder.equal(root.get("companyId"), criteria.getCompanyId())
                 );
                 predicates.add(combinedPredicate);
             }

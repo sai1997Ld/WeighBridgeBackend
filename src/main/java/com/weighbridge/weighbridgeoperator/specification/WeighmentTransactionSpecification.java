@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import com.weighbridge.weighbridgeoperator.dto.WeighbridgeOperatorSearchCriteria;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -91,8 +92,30 @@ public class WeighmentTransactionSpecification implements Specification<Weighmen
                 );
                 predicates.add(combinedPredicate);
             }
-
-            if (criteria.getMaterialName() != null) {
+            String materialName = criteria.getMaterialName();
+            if(StringUtils.hasText(materialName)) {
+                System.out.println("-------"+materialName);
+                Long byMaterialIdByMaterialName = materialMasterRepository.findByMaterialIdByMaterialName(materialName);
+                Long productIdByProductName = productMasterRepository.findProductIdByProductName(materialName);
+                if (byMaterialIdByMaterialName != null) {
+                    Predicate combinedPredicate = builder.and(
+                            builder.equal(root.get("gateEntryTransaction").get("materialId"), byMaterialIdByMaterialName),
+                            builder.equal(root.get("gateEntryTransaction").get("siteId"), criteria.getSiteId()),
+                            builder.equal(root.get("gateEntryTransaction").get("companyId"), criteria.getCompanyId()),
+                            builder.equal(root.get("gateEntryTransaction").get("transactionType"), "Inbound")                    );
+                    predicates.add(combinedPredicate);
+                }
+                if (productIdByProductName != null) {
+                    Predicate combinedPredicate = builder.and(
+                            builder.equal(root.get("gateEntryTransaction").get("materialId"), productIdByProductName),
+                            builder.equal(root.get("gateEntryTransaction").get("transactionType"), "Outbound"),
+                            builder.equal(root.get("gateEntryTransaction").get("companyId"), criteria.getCompanyId()),
+                            builder.equal(root.get("gateEntryTransaction").get("siteId"), criteria.getSiteId())
+                    );
+                    predicates.add(combinedPredicate);
+                }
+            }
+           /* if (criteria.getMaterialName() != null) {
                 Long byMaterialIdByMaterialName = materialMasterRepository.findByMaterialIdByMaterialName(criteria.getMaterialName());
                 System.out.println("--------------"+byMaterialIdByMaterialName);
                 if (byMaterialIdByMaterialName==null){
@@ -121,7 +144,7 @@ public class WeighmentTransactionSpecification implements Specification<Weighmen
 
                     predicates.add(combinedPredicate);
 
-            }
+            }*/
             if (criteria.getSupplierName() != null) {
                 List<Long> listSupplierIdBySupplierName = supplierMasterRepository.findListSupplierIdBySupplierName(criteria.getSupplierName());
                 if (listSupplierIdBySupplierName.isEmpty()) {
