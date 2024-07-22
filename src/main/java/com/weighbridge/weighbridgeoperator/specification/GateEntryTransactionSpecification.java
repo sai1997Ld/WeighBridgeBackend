@@ -10,6 +10,7 @@ import com.weighbridge.weighbridgeoperator.repositories.WeighmentTransactionRepo
 import jakarta.persistence.criteria.*;
 import lombok.Data;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -94,8 +95,27 @@ public class GateEntryTransactionSpecification implements Specification<GateEntr
             );
             predicates.add(combinedPredicate);
         }
+        String materialName = criteria.getMaterialName();
+        if(StringUtils.hasText(materialName)) {
 
-        if (criteria.getMaterialName() != null) {
+            Long byMaterialIdByMaterialName = materialMasterRepository.findByMaterialIdByMaterialName(materialName);
+            Long productIdByProductName = productMasterRepository.findProductIdByProductName(materialName);
+            if (byMaterialIdByMaterialName != null) {
+                Predicate combinedPredicate = builder.and(
+                        builder.equal(root.get("materialId"), byMaterialIdByMaterialName),
+                        builder.equal(root.get("transactionType"), "Inbound")
+                );
+                predicates.add(combinedPredicate);
+            }
+            if (productIdByProductName != null) {
+                Predicate combinedPredicate = builder.and(
+                        builder.equal(root.get("materialId"), productIdByProductName),
+                        builder.equal(root.get("transactionType"), "Outbound")
+                );
+                predicates.add(combinedPredicate);
+            }
+        }
+       /* if (criteria.getMaterialName() != null) {
             Long byMaterialIdByMaterialName = materialMasterRepository.findByMaterialIdByMaterialName(criteria.getMaterialName());
             if (byMaterialIdByMaterialName==null){
                 throw new ResourceNotFoundException("materialName mismatched or not found");
@@ -120,7 +140,7 @@ public class GateEntryTransactionSpecification implements Specification<GateEntr
                     builder.equal(root.get("transactionType"),"Outbound")
             );
             predicates.add(combinedPredicate);
-        }
+        }*/
         if (criteria.getSupplierName() != null) {
             List<Long> listSupplierIdBySupplierName = supplierMasterRepository.findListSupplierIdBySupplierName(criteria.getSupplierName());
             if (listSupplierIdBySupplierName.isEmpty()) {
