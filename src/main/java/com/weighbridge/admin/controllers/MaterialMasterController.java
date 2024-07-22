@@ -5,10 +5,12 @@ import com.weighbridge.admin.payloads.MaterialAndTypeRequest;
 import com.weighbridge.admin.payloads.MaterialParameterResponse;
 import com.weighbridge.admin.payloads.MaterialWithParameters;
 import com.weighbridge.admin.services.MaterialMasterService;
+import com.weighbridge.admin.services.ProductMasterService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,14 +25,16 @@ import java.util.List;
 public class MaterialMasterController {
 
     private final MaterialMasterService materialMasterService;
+    private final ProductMasterService productMasterService;
 
     /**
      * Constructor to inject the `MaterialMasterService` dependency.
      *
      * @param materialMasterService - The service class responsible for material data access and manipulation logic.
      */
-    public MaterialMasterController(MaterialMasterService materialMasterService) {
+    public MaterialMasterController(MaterialMasterService materialMasterService, ProductMasterService productMasterService) {
         this.materialMasterService = materialMasterService;
+        this.productMasterService = productMasterService;
     }
 
     /**
@@ -64,7 +68,12 @@ public class MaterialMasterController {
     @GetMapping("/names")
     public ResponseEntity<List<String>> getAllMaterialNames() {
         List<String> allMaterialNames = materialMasterService.getAllMaterialNames();
-        return ResponseEntity.ok(allMaterialNames);
+        List<String> allProductNames = productMasterService.getAllProductNames();
+        List<String> totalMaterialAndProduct=new ArrayList<>();
+        totalMaterialAndProduct.addAll(allMaterialNames);
+        totalMaterialAndProduct.addAll(allProductNames);
+
+        return ResponseEntity.ok(totalMaterialAndProduct);
     }
 
     /**
