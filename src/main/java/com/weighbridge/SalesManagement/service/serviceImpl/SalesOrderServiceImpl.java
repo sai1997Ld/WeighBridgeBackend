@@ -292,6 +292,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
         if(bySaleOrderNo.getBalanceQuantity()>0){
             bySaleOrderNo.setComment(message);
             bySaleOrderNo.setStatus(false);
+            salesOrderRespository.save(bySaleOrderNo);
         }
         return "SaleOrder "+saleOrderNo+" closed successfully";
     }
