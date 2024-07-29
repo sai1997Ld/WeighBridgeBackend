@@ -37,4 +37,6 @@ public class SalesOrder {
 
     //to remove record from dashboard on basis of status
     private boolean status=true;
+    private String salePassOfDeductedQuantity;
+    private String comment;
 }

@@ -27,5 +27,6 @@ public class TicketResponse {
 
     private String grossWeightTime;
     private String tareWeightTime;
+    private double balanceWeight;
 
 }

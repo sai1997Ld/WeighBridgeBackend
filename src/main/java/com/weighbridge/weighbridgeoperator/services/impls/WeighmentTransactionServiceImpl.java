@@ -208,11 +208,14 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
             if (gateEntryId.getTransactionType().equalsIgnoreCase("Outbound")) {
                 SalesProcess bySalePassNo = salesProcessRepository.findBySalePassNo(gateEntryId.getTpNo());
                 SalesOrder bySaleOrderNo = salesOrderRespository.findBySaleOrderNo(bySalePassNo.getPurchaseSale().getSaleOrderNo());
-                double progressiveQty = bySaleOrderNo.getProgressiveQuantity() + netWeight;
-                double balanceQty = bySaleOrderNo.getOrderedQuantity() - progressiveQty ;
-                bySaleOrderNo.setProgressiveQuantity(progressiveQty);
-                bySaleOrderNo.setBalanceQuantity(balanceQty);
-                salesOrderRespository.save(bySaleOrderNo);
+                    double progressiveQty = bySaleOrderNo.getProgressiveQuantity() + netWeight;
+                    double balanceQty = bySaleOrderNo.getOrderedQuantity() - progressiveQty;
+                    bySaleOrderNo.setProgressiveQuantity(progressiveQty);
+                    bySaleOrderNo.setBalanceQuantity(balanceQty);
+                    if(bySaleOrderNo.getBalanceQuantity()<=0){
+                        bySaleOrderNo.setStatus(false);
+                    }
+                    salesOrderRespository.save(bySaleOrderNo);
             }
             return "Second weight saved";
         }
@@ -380,6 +383,9 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
                     ticketResponse.setGrossWeight(byGateEntryTransactionTicketNo.getGrossWeight()*1000);
                     ticketResponse.setMaterial(productMasterRepository.findProductNameByProductId(gateEntryTransaction.getMaterialId()));
                     ticketResponse.setMaterialType(gateEntryTransaction.getMaterialType());
+                    SalesProcess bySalePassNo = salesProcessRepository.findBySalePassNo(gateEntryTransaction.getTpNo());
+                    SalesOrder bySaleOrderNo = salesOrderRespository.findBySaleOrderNo(bySalePassNo.getPurchaseSale().getSaleOrderNo());
+                    ticketResponse.setBalanceWeight(bySaleOrderNo.getBalanceQuantity());
                 }
                 Object[] customerInfo = customerMasterRepository.findCustomerNameAndAddressBycustomerId(gateEntryTransaction.getCustomerId());
                 Object[] customerData = (Object[]) customerInfo[0];
@@ -502,6 +508,57 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
         }
     }
 
+/*    @Override
+    public String newSaleOrder(Integer ticketNo, Double netWeight) {
+        GateEntryTransaction gateEntryTransaction = gateEntryTransactionRepository.findById(ticketNo).orElseThrow(() -> new ResourceNotFoundException("ticket not found"));
+        SalesProcess bySalePassNo = salesProcessRepository.findBySalePassNo(gateEntryTransaction.getTpNo());
+        SalesOrder bySaleOrderNo = salesOrderRespository.findBySaleOrderNo(bySalePassNo.getPurchaseSale().getSaleOrderNo());
+        bySaleOrderNo.setBalanceQuantity(bySaleOrderNo.getBalanceQuantity()-netWeight);
+        bySaleOrderNo.setProgressiveQuantity(bySaleOrderNo.getProgressiveQuantity()+netWeight);
+        SalesOrder salesOrder = salesOrderRespository.save(bySaleOrderNo);
+        bySalePassNo.setExtraSalePassNo(bySalePassNo.getSalePassNo()+"_"+Math.abs(salesOrder.getBalanceQuantity()));
+        salesProcessRepository.save(bySalePassNo);
+        return "Exceeded quantity recorded by extraSalepass";
+    }*/
+
+  /*  @Override
+    public String existingSaleOrder(String saleOrderNo, Double netWeight,Integer ticketNo) {
+        SalesOrder existingSaleOrderNo = salesOrderRespository.findBySaleOrderNo(saleOrderNo);
+        GateEntryTransaction gateEntryTransaction = gateEntryTransactionRepository.findById(ticketNo).orElseThrow(() -> new ResourceNotFoundException("ticket not found"));
+        SalesProcess previousSalePass = salesProcessRepository.findBySalePassNo(gateEntryTransaction.getTpNo());
+        SalesOrder referencedSaleOrderNo = salesOrderRespository.findBySaleOrderNo(previousSalePass.getPurchaseSale().getSaleOrderNo());
+        Double quantity=netWeight-referencedSaleOrderNo.getBalanceQuantity();
+        existingSaleOrderNo.setBalanceQuantity(existingSaleOrderNo.getBalanceQuantity()-Math.abs(quantity));
+        existingSaleOrderNo.setProgressiveQuantity(existingSaleOrderNo.getProgressiveQuantity()+Math.abs(quantity));
+        String salePassOfDeductedQuantity = existingSaleOrderNo.getSalePassOfDeductedQuantity();
+        String salePassDetail="";
+        if(salePassOfDeductedQuantity!=null){
+            salePassDetail=salePassOfDeductedQuantity;
+            existingSaleOrderNo.setSalePassOfDeductedQuantity(salePassDetail+","+previousSalePass.getSalePassNo()+"_"+quantity);
+        }
+        else {
+        existingSaleOrderNo.setSalePassOfDeductedQuantity(previousSalePass.getSalePassNo()+"_"+quantity);
+        }
+        referencedSaleOrderNo.setProgressiveQuantity(referencedSaleOrderNo.getProgressiveQuantity()+referencedSaleOrderNo.getBalanceQuantity());
+        referencedSaleOrderNo.setBalanceQuantity(0.0);
+        salesOrderRespository.save(referencedSaleOrderNo);
+        salesOrderRespository.save(existingSaleOrderNo);
+        return "extra quantity deducted from selected SaleOrderNo "+saleOrderNo;
+    }*/
+
+/*    @Override
+    public String generateNewOrder(Integer ticketNo) {
+        //WeighmentTransaction byGateEntryTransactionTicketNo = weighmentTransactionRepository.findByGateEntryTransactionTicketNo(ticketNo);
+        GateEntryTransaction byTicketId = gateEntryTransactionRepository.findById(ticketNo).orElseThrow(()->new ResourceNotFoundException("ticket not found"));
+        SalesProcess bySalePassNo = salesProcessRepository.findBySalePassNo(byTicketId.getTpNo());
+        SalesOrder bySaleOrderNo = salesOrderRespository.findBySaleOrderNo(bySalePassNo.getPurchaseSale().getSaleOrderNo());
+        double progressiveQty = bySaleOrderNo.getProgressiveQuantity() + ;
+        double balanceQty = bySaleOrderNo.getOrderedQuantity() - progressiveQty ;
+        bySaleOrderNo.setProgressiveQuantity(progressiveQty);
+        bySaleOrderNo.setBalanceQuantity(balanceQty);
+        salesOrderRespository.save(bySaleOrderNo);
+    }*/
+
     @Override
     public WeighbridgePageResponse getAllCompletedTickets(Pageable pageable,String userId) {
         UserMaster byId = userMasterRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user not found with"+userId));
@@ -514,7 +571,6 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
         for(WeighmentTransaction weighmentTransaction:allUsers){
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");       
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-
             WeighmentTransactionResponse weighmentTransactionResponse = new WeighmentTransactionResponse();
             weighmentTransactionResponse.setTransactionDate(weighmentTransaction.getGateEntryTransaction().getTransactionDate());
             weighmentTransactionResponse.setTransactionType(weighmentTransaction.getGateEntryTransaction().getTransactionType());

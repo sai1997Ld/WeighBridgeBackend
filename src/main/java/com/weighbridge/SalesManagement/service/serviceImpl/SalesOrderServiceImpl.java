@@ -123,25 +123,27 @@ public class SalesOrderServiceImpl implements SalesOrderService {
         List<SalesOrder> allUsers = allSales.getContent();
         List<SalesDashboardResponse> list = new ArrayList<>();
         for(SalesOrder salesOrder : allUsers) {
-            SalesDashboardResponse salesDashboardResponse = new SalesDashboardResponse();
-            salesDashboardResponse.setPurchaseOrderNo(salesOrder.getPurchaseOrderNo());
-            salesDashboardResponse.setOrderedQty(salesOrder.getOrderedQuantity());
-            CustomerMaster byId = customerMasterRepository.findById(salesOrder.getCustomerId()).get();
-            salesDashboardResponse.setCustomerName(byId.getCustomerName());
-            salesDashboardResponse.setSaleOrderNo(salesOrder.getSaleOrderNo());
-            salesDashboardResponse.setProductName(salesOrder.getProductName());
-            salesDashboardResponse.setBrokerName(salesOrder.getBrokerName());
-            salesDashboardResponse.setOrderedQty(
-                    BigDecimal.valueOf(salesOrder.getOrderedQuantity()).setScale(3, RoundingMode.HALF_UP).doubleValue()
-            );
-            salesDashboardResponse.setProgressiveQty(
-                    BigDecimal.valueOf(salesOrder.getProgressiveQuantity()).setScale(3, RoundingMode.HALF_UP).doubleValue()
-            );
-            salesDashboardResponse.setBalanceQty(
-                    BigDecimal.valueOf(salesOrder.getBalanceQuantity()).setScale(3, RoundingMode.HALF_UP).doubleValue()
-            );
-            // Assuming getPurchasePassNo() is a method of SalesProcess, not List<SalesProcess>
-            list.add(salesDashboardResponse);
+            if(salesOrder.isStatus()) {
+                SalesDashboardResponse salesDashboardResponse = new SalesDashboardResponse();
+                salesDashboardResponse.setPurchaseOrderNo(salesOrder.getPurchaseOrderNo());
+                salesDashboardResponse.setOrderedQty(salesOrder.getOrderedQuantity());
+                CustomerMaster byId = customerMasterRepository.findById(salesOrder.getCustomerId()).get();
+                salesDashboardResponse.setCustomerName(byId.getCustomerName());
+                salesDashboardResponse.setSaleOrderNo(salesOrder.getSaleOrderNo());
+                salesDashboardResponse.setProductName(salesOrder.getProductName());
+                salesDashboardResponse.setBrokerName(salesOrder.getBrokerName());
+                salesDashboardResponse.setOrderedQty(
+                        BigDecimal.valueOf(salesOrder.getOrderedQuantity()).setScale(3, RoundingMode.HALF_UP).doubleValue()
+                );
+                salesDashboardResponse.setProgressiveQty(
+                        BigDecimal.valueOf(salesOrder.getProgressiveQuantity()).setScale(3, RoundingMode.HALF_UP).doubleValue()
+                );
+                salesDashboardResponse.setBalanceQty(
+                        BigDecimal.valueOf(salesOrder.getBalanceQuantity()).setScale(3, RoundingMode.HALF_UP).doubleValue()
+                );
+                // Assuming getPurchasePassNo() is a method of SalesProcess, not List<SalesProcess>
+                list.add(salesDashboardResponse);
+            }
         }
         SalesUserPageResponse salesUserPageResponse=new SalesUserPageResponse();
         salesUserPageResponse.setSales(list);
@@ -216,7 +218,6 @@ public class SalesOrderServiceImpl implements SalesOrderService {
 
     public VehicleAndTransporterDetail getBySalePassNo(String salePassNo){
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-
         SalesProcess bySalePassNo = salesProcessRepository.findBySalePassNo(salePassNo);
         VehicleAndTransporterDetail vehicleAndTransporterDetail = new VehicleAndTransporterDetail();
         vehicleAndTransporterDetail.setSalePassNo(bySalePassNo.getSalePassNo());
@@ -266,5 +267,42 @@ public class SalesOrderServiceImpl implements SalesOrderService {
         else {
             throw new ResourceNotFoundException("no match found.");
         }
+    }
+
+    @Override
+    public List<SalesOrder> searchBycustomerNameAndProduct(String customerName, String customerAddress, String productName) {
+        String address=customerAddress;
+        String addressLine1=null;
+        String addressLine2=null;
+        if (address!=null) {
+            String[] parts = address.split(",", 2);
+            addressLine1=parts[0].trim();
+            System.out.println("addresss----"+addressLine1);
+//            addressLine2=parts[1].trim();
+        }
+        Long customerId = customerMasterRepository.findCustomerIdByCustomerNameAndAddressLines(customerName, addressLine1, addressLine2);
+        System.out.println("-------"+customerId);
+        List<SalesOrder> orderList = salesOrderRespository.findAllByCustomerIdAndProductNameAndStatus(customerId, productName, true);
+        return orderList;
+    }
+
+    @Override
+    public String closeSaleOrder(String saleOrderNo,String message) {
+        SalesOrder bySaleOrderNo = salesOrderRespository.findBySaleOrderNo(saleOrderNo);
+        if(bySaleOrderNo.getBalanceQuantity()>0){
+            bySaleOrderNo.setComment(message);
+            bySaleOrderNo.setStatus(false);
+        }
+        return "SaleOrder "+saleOrderNo+" closed successfully";
+    }
+
+    @Override
+    public String generateNewSaleOrder(String saleOrderNo) {
+        return null;
+    }
+
+    @Override
+    public String deductFromExisting(String saleOrderNo) {
+        return null;
     }
 }

@@ -1,5 +1,6 @@
 package com.weighbridge.SalesManagement.controller;
 
+import com.weighbridge.SalesManagement.entities.SalesOrder;
 import com.weighbridge.SalesManagement.payloads.*;
 import com.weighbridge.SalesManagement.repositories.SalesOrderRespository;
 import com.weighbridge.SalesManagement.service.SalesOrderService;
@@ -11,6 +12,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -78,7 +82,6 @@ public class SalesOrderController {
         return ResponseEntity.ok(vehiclesAndTransporterDetails);
     }
 
-
     @GetMapping("/getBySalePassNo")
     public ResponseEntity<VehicleAndTransporterDetail> getVehicleDetailByPassNo(@RequestParam String salePassNo){
         VehicleAndTransporterDetail vehicleAndTransporterDetail=salesOrderService.getBySalePassNo(salePassNo);
@@ -91,4 +94,23 @@ public class SalesOrderController {
         SalesDashboardResponse salesDashboardResponse = salesOrderService.searchBySaleOrderNo(saleOrderNo,byUserId.getSite().getSiteId(),byUserId.getCompany().getCompanyId());
         return ResponseEntity.ok(salesDashboardResponse);
     }
+
+    @GetMapping("/saleOrderList")
+    public ResponseEntity<List<SalesOrder>> searchBycustomerNameAndProduct(@RequestParam String customerName,@RequestParam String customerAddress,@RequestParam String productName){
+        List<SalesOrder> salesOrders = salesOrderService.searchBycustomerNameAndProduct(customerName, customerAddress, productName);
+        return new ResponseEntity<>(salesOrders, HttpStatus.OK);
+    }
+
+    @PostMapping("/closeOrder")
+    public ResponseEntity<String> closeSaleOrder(@RequestParam String saleOrderNo,@RequestParam String message){
+        String comment = salesOrderService.closeSaleOrder(saleOrderNo, message);
+        return ResponseEntity.ok(comment);
+    }
+
+    @PostMapping("/handleExtraWeight")
+    public ResponseEntity<String> handleExtraWeight(@RequestParam String saleOrderNo){
+
+        return null;
+    }
+
 }

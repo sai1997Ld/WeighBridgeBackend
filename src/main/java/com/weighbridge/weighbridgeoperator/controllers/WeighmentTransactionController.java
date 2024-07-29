@@ -110,4 +110,15 @@ public class WeighmentTransactionController {
         WeighbridgePageResponse allCompletedTickets = weighmentTransactionService.getAllCompletedTickets(pageable,userId);
         return ResponseEntity.ok(allCompletedTickets);
     }
+
+  /*  public ResponseEntity<String> handleBalanceWeight(@RequestParam Integer ticketNo,@RequestParam(required = false) String saleOrderNo,@RequestParam Double netWeight){
+        String message="";
+        if (saleOrderNo!=null){
+            message = weighmentTransactionService.existingSaleOrder(saleOrderNo, netWeight, ticketNo);
+        }
+        else {
+           message = weighmentTransactionService.newSaleOrder(ticketNo,netWeight);
+        }
+        return ResponseEntity.ok(message);
+    }*/
 }

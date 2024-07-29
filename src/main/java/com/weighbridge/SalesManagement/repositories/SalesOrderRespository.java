@@ -1,6 +1,7 @@
 package com.weighbridge.SalesManagement.repositories;
 
 import com.weighbridge.SalesManagement.entities.SalesOrder;
+import org.bytedeco.opencv.presets.opencv_core;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,4 +26,5 @@ public interface SalesOrderRespository extends JpaRepository<SalesOrder,String> 
     Page<SalesOrder> findAllBySiteIdAndCompanyId(String siteId,String companyId, Pageable pageable);
 
     SalesOrder findBySaleOrderNoAndSiteIdAndCompanyId(String saleOrderNo,String siteId,String companyId);
+    List<SalesOrder> findAllByCustomerIdAndProductNameAndStatus(Long customerId,String productName,boolean status);
 }

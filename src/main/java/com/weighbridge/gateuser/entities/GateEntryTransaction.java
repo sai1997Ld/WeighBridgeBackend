@@ -50,5 +50,4 @@ public class GateEntryTransaction {
     private String ewaybillNo;
     private String transactionType;
     private LocalDate challanDate;
-
 }

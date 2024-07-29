@@ -1,5 +1,6 @@
 package com.weighbridge.SalesManagement.service;
 
+import com.weighbridge.SalesManagement.entities.SalesOrder;
 import com.weighbridge.SalesManagement.payloads.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,4 +20,11 @@ public interface SalesOrderService{
     public VehicleAndTransporterDetail getBySalePassNo(String salePassNo);
 
     public SalesDashboardResponse searchBySaleOrderNo(String saleOrderNo,String siteId,String companyId);
+
+    List<SalesOrder> searchBycustomerNameAndProduct(String customerName,String customerAddress, String ProductName);
+
+    String closeSaleOrder(String saleOrderNo,String message);
+
+    String generateNewSaleOrder(String saleOrderNo);
+    String deductFromExisting(String saleOrderNo);
 }

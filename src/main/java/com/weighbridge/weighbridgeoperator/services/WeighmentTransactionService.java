@@ -45,4 +45,7 @@ public interface WeighmentTransactionService {
 
     WeighbridgePageResponse getAllCompletedTickets(Pageable pageable,String userId);
     TicketImageResponse viewResponseByTicket(Integer ticketNo, String userId);
+
+  //  String newSaleOrder(Integer ticketNo,Double netWeight);
+  //  String existingSaleOrder(String saleOrderNo,Double netWeight,Integer ticketNo);
 }
