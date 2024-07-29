@@ -7,6 +7,7 @@ public class SalesDashboardResponse {
   private String saleOrderNo;
   private String purchaseOrderNo;
   private String customerName;
+  private String customerAddress;
   private String productName;
   private String brokerName;
   private double orderedQty;

@@ -96,8 +96,11 @@ public class SalesOrderController {
     }
 
     @GetMapping("/saleOrderList")
-    public ResponseEntity<List<SalesOrder>> searchBycustomerNameAndProduct(@RequestParam String customerName,@RequestParam String customerAddress,@RequestParam String productName){
-        List<SalesOrder> salesOrders = salesOrderService.searchBycustomerNameAndProduct(customerName, customerAddress, productName);
+    public ResponseEntity<List<SalesOrder>> searchBycustomerNameAndProduct(@RequestParam String customerName,
+                                                                           @RequestParam String customerAddress,
+                                                                           @RequestParam String productName,
+                                                                           @RequestParam String saleOrder){
+        List<SalesOrder> salesOrders = salesOrderService.searchBycustomerNameAndProductAndNotSaleOrderNo(customerName, customerAddress, productName, saleOrder);
         return new ResponseEntity<>(salesOrders, HttpStatus.OK);
     }
 

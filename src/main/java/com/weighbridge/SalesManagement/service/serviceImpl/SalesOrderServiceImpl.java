@@ -128,6 +128,8 @@ public class SalesOrderServiceImpl implements SalesOrderService {
                 salesDashboardResponse.setPurchaseOrderNo(salesOrder.getPurchaseOrderNo());
                 salesDashboardResponse.setOrderedQty(salesOrder.getOrderedQuantity());
                 CustomerMaster byId = customerMasterRepository.findById(salesOrder.getCustomerId()).get();
+                String customerAddressLine1 = byId.getCustomerAddressLine1();
+                salesDashboardResponse.setCustomerAddress(customerAddressLine1);
                 salesDashboardResponse.setCustomerName(byId.getCustomerName());
                 salesDashboardResponse.setSaleOrderNo(salesOrder.getSaleOrderNo());
                 salesDashboardResponse.setProductName(salesOrder.getProductName());
@@ -270,7 +272,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
     }
 
     @Override
-    public List<SalesOrder> searchBycustomerNameAndProduct(String customerName, String customerAddress, String productName) {
+    public List<SalesOrder> searchBycustomerNameAndProductAndNotSaleOrderNo(String customerName, String customerAddress, String productName, String saleOrder) {
         String address=customerAddress;
         String addressLine1=null;
         String addressLine2=null;
@@ -282,7 +284,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
         }
         Long customerId = customerMasterRepository.findCustomerIdByCustomerNameAndAddressLines(customerName, addressLine1, addressLine2);
         System.out.println("-------"+customerId);
-        List<SalesOrder> orderList = salesOrderRespository.findAllByCustomerIdAndProductNameAndStatus(customerId, productName, true);
+        List<SalesOrder> orderList = salesOrderRespository.findAllByCustomerIdAndProductNameAndStatusAndSaleOrderNoNot(customerId, productName, true,saleOrder);
         return orderList;
     }
 
@@ -299,6 +301,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
 
     @Override
     public String generateNewSaleOrder(String saleOrderNo) {
+
         return null;
     }
 
