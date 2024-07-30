@@ -299,7 +299,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
         return "SaleOrder "+saleOrderNo+" closed successfully";
     }
 
-    @Override
+ /*   @Override
     public String generateNewSaleOrder(String saleOrderNo) {
 
         return null;
@@ -308,5 +308,5 @@ public class SalesOrderServiceImpl implements SalesOrderService {
     @Override
     public String deductFromExisting(String saleOrderNo) {
         return null;
-    }
+    }*/
 }

@@ -46,11 +46,10 @@ public class SalesProcessServiceImpl implements SalesProcessService {
      * @return
      */
     @Override
-    public String addSalesProcess(SalesProcessRequest salesProcessRequest) {
+    public String addSalesProcess(SalesProcessRequest salesProcessRequest,String salesCheck,String saleOrder) {
         /*Boolean sales = salesProcessRepository.existsByPurchasePassNo();
         if (!sales) {*/
         SalesProcess process = new SalesProcess();
-
         process.setVehicleNo(salesProcessRequest.getVehicleNo());
         process.setConsignmentWeight(salesProcessRequest.getConsignmentWeight());
         //  process.setNetWeight(salesProcessRequest.getNetWeight());
@@ -71,8 +70,16 @@ public class SalesProcessServiceImpl implements SalesProcessService {
         process.setPurchaseSale(bySaleOrderNo);
         process.setTransporterName(salesProcessRequest.getTransporterName());
         process.setSalePassNo(generateSalePassNo(salesProcessRequest.getSaleOrderNo()));
+        if(salesCheck!=null) {
+            if (salesCheck.equalsIgnoreCase("newSaleOrder")) {
+                process.setExtraSalePassNo(process.getPurchaseSale().getSaleOrderNo() + "_" + process.getSalePassNo());
+            }
+        }
+        //Storing that saleOrder for which i will deduct
+        if(saleOrder!=null){
+            process.setSelectedSaleOrder(saleOrder);
+        }
         salesProcessRepository.save(process);
-
         //Add vehicle and transporter to VehicleMaster and TransporterMaster
 
  /*           TransporterMaster transporterMaster = transporterMasterRepository.findByTransporterName(salesProcessRequest.getTransporterName());

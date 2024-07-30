@@ -23,7 +23,10 @@ public class SalesProcess {
     private String transporterName;
     private double consignmentWeight;
     private LocalDate purchaseProcessDate;
+    //to handle neworder option when balance quantity is less
     private String extraSalePassNo;
+    //to handle deduct from existing saleOrder
+    private String selectedSaleOrder;
     // //to remove record from dashboard on basis of status
     private boolean status=true;
 }

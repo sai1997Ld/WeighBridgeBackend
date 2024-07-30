@@ -16,8 +16,8 @@ public class SalesProcessController {
     SalesProcessService salesProcessService;
 
     @PostMapping("/salesProcess")
-    public ResponseEntity<String> addSalesProcess(@RequestBody SalesProcessRequest salesProcessRequest){
-        String sales = salesProcessService.addSalesProcess(salesProcessRequest);
+    public ResponseEntity<String> addSalesProcess(@RequestBody SalesProcessRequest salesProcessRequest,@RequestParam(required = false) String checkSales,@RequestParam(required = false)String saleOrder){
+        String sales = salesProcessService.addSalesProcess(salesProcessRequest,checkSales,saleOrder);
         return ResponseEntity.ok(sales);
     }
 

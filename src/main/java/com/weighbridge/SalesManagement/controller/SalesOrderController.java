@@ -110,10 +110,10 @@ public class SalesOrderController {
         return ResponseEntity.ok(comment);
     }
 
-    @PostMapping("/handleExtraWeight")
+   /* @PostMapping("/handleFromExisting")
     public ResponseEntity<String> handleExtraWeight(@RequestParam String saleOrderNo){
 
         return null;
-    }
+    }*/
 
 }

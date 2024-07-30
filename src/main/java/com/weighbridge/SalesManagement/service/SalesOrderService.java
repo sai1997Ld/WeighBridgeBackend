@@ -25,6 +25,6 @@ public interface SalesOrderService{
 
     String closeSaleOrder(String saleOrderNo,String message);
 
-    String generateNewSaleOrder(String saleOrderNo);
-    String deductFromExisting(String saleOrderNo);
+  //  String generateNewSaleOrder(String saleOrderNo);
+  //  String deductFromExisting(String saleOrderNo);
 }

@@ -204,8 +204,26 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
             }
             vehicleTransactionStatusRepository.save(byTicketNo);
             transactionLogRepository.save(transactionLog);
+            SalesProcess salesProcess=salesProcessRepository.findBySalePassNo(gateEntryId.getTpNo());
+            String extraSalePass = salesProcess != null ? salesProcess.getExtraSalePassNo() : null;
+            String selectedSaleOrder = salesProcess != null ? salesProcess.getSelectedSaleOrder() : null;
+            System.out.println(extraSalePass);
+            System.out.println(selectedSaleOrder);
+            //to handle if newSalepass generated incase of low balancequantity for any salesorder
+            if(gateEntryId.getTransactionType().equalsIgnoreCase("Outbound")&&extraSalePass!=null){
+                System.out.println("new");
+                newSaleOrder(gateEntryId.getTicketNo(), netWeight);
+            }
 
-            if (gateEntryId.getTransactionType().equalsIgnoreCase("Outbound")) {
+            //to handle if newSalepass generated incase of low balancequantity for any salesorder
+            else if(gateEntryId.getTransactionType().equalsIgnoreCase("Outbound")&&selectedSaleOrder!=null){
+                System.out.println("existing");
+                existingSaleOrder(selectedSaleOrder,netWeight, gateEntryId.getTicketNo());
+            }
+
+            else {
+                if (gateEntryId.getTransactionType().equalsIgnoreCase("Outbound")){
+                System.out.println("nothing");
                 SalesProcess bySalePassNo = salesProcessRepository.findBySalePassNo(gateEntryId.getTpNo());
                 SalesOrder bySaleOrderNo = salesOrderRespository.findBySaleOrderNo(bySalePassNo.getPurchaseSale().getSaleOrderNo());
                     double progressiveQty = bySaleOrderNo.getProgressiveQuantity() + netWeight;
@@ -216,11 +234,11 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
                         bySaleOrderNo.setStatus(false);
                     }
                     salesOrderRespository.save(bySaleOrderNo);
+                    }
             }
             return "Second weight saved";
         }
     }
-
 
 
     @Override
@@ -508,26 +526,28 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
         }
     }
 
-/*    @Override
+    @Override
     public String newSaleOrder(Integer ticketNo, Double netWeight) {
         GateEntryTransaction gateEntryTransaction = gateEntryTransactionRepository.findById(ticketNo).orElseThrow(() -> new ResourceNotFoundException("ticket not found"));
         SalesProcess bySalePassNo = salesProcessRepository.findBySalePassNo(gateEntryTransaction.getTpNo());
         SalesOrder bySaleOrderNo = salesOrderRespository.findBySaleOrderNo(bySalePassNo.getPurchaseSale().getSaleOrderNo());
         bySaleOrderNo.setBalanceQuantity(bySaleOrderNo.getBalanceQuantity()-netWeight);
         bySaleOrderNo.setProgressiveQuantity(bySaleOrderNo.getProgressiveQuantity()+netWeight);
+        bySaleOrderNo.setStatus(false);
         SalesOrder salesOrder = salesOrderRespository.save(bySaleOrderNo);
-        bySalePassNo.setExtraSalePassNo(bySalePassNo.getSalePassNo()+"_"+Math.abs(salesOrder.getBalanceQuantity()));
+        bySalePassNo.setExtraSalePassNo(bySalePassNo.getExtraSalePassNo()+"_"+Math.abs(salesOrder.getBalanceQuantity()));
         salesProcessRepository.save(bySalePassNo);
         return "Exceeded quantity recorded by extraSalepass";
-    }*/
+    }
 
-  /*  @Override
+    @Override
     public String existingSaleOrder(String saleOrderNo, Double netWeight,Integer ticketNo) {
         SalesOrder existingSaleOrderNo = salesOrderRespository.findBySaleOrderNo(saleOrderNo);
         GateEntryTransaction gateEntryTransaction = gateEntryTransactionRepository.findById(ticketNo).orElseThrow(() -> new ResourceNotFoundException("ticket not found"));
         SalesProcess previousSalePass = salesProcessRepository.findBySalePassNo(gateEntryTransaction.getTpNo());
         SalesOrder referencedSaleOrderNo = salesOrderRespository.findBySaleOrderNo(previousSalePass.getPurchaseSale().getSaleOrderNo());
         Double quantity=netWeight-referencedSaleOrderNo.getBalanceQuantity();
+        System.out.println(quantity);
         existingSaleOrderNo.setBalanceQuantity(existingSaleOrderNo.getBalanceQuantity()-Math.abs(quantity));
         existingSaleOrderNo.setProgressiveQuantity(existingSaleOrderNo.getProgressiveQuantity()+Math.abs(quantity));
         String salePassOfDeductedQuantity = existingSaleOrderNo.getSalePassOfDeductedQuantity();
@@ -541,10 +561,11 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
         }
         referencedSaleOrderNo.setProgressiveQuantity(referencedSaleOrderNo.getProgressiveQuantity()+referencedSaleOrderNo.getBalanceQuantity());
         referencedSaleOrderNo.setBalanceQuantity(0.0);
+        referencedSaleOrderNo.setStatus(false);
         salesOrderRespository.save(referencedSaleOrderNo);
         salesOrderRespository.save(existingSaleOrderNo);
         return "extra quantity deducted from selected SaleOrderNo "+saleOrderNo;
-    }*/
+    }
 
 /*    @Override
     public String generateNewOrder(Integer ticketNo) {
@@ -586,7 +607,6 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
                 weighmentTransactionResponse.setVehicleOut("");
 
             }
-
 
 
             weighmentTransactionResponse.setNetWeight(

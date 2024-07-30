@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface SalesProcessService {
 
-    public String addSalesProcess(SalesProcessRequest request);
+    public String addSalesProcess(SalesProcessRequest request,String checkSales,String saleOrder);
 
     public List<SalesDetailBySalePassNo> getBySaleOrderNo(String saleOrderNo);
 
