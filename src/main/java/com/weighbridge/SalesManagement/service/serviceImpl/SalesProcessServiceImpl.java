@@ -75,7 +75,7 @@ public class SalesProcessServiceImpl implements SalesProcessService {
                 process.setExtraSalePassNo(process.getPurchaseSale().getSaleOrderNo() + "_" + process.getSalePassNo());
             }
         }
-        //Storing that saleOrder for which i will deduct
+        //Storing that saleOrder for which it will be deducted
         if(saleOrder!=null){
             process.setSelectedSaleOrder(saleOrder);
         }

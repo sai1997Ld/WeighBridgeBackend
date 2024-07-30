@@ -291,7 +291,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
     @Override
     public String closeSaleOrder(String saleOrderNo,String message) {
         SalesOrder bySaleOrderNo = salesOrderRespository.findBySaleOrderNo(saleOrderNo);
-        if(bySaleOrderNo.getBalanceQuantity()>0){
+        if(bySaleOrderNo.getBalanceQuantity()>0&&bySaleOrderNo.getBalanceQuantity()<8){
             bySaleOrderNo.setComment(message);
             bySaleOrderNo.setStatus(false);
             salesOrderRespository.save(bySaleOrderNo);
