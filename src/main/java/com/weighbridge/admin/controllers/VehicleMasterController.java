@@ -158,4 +158,11 @@ public class VehicleMasterController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/vehicleList")
+    public ResponseEntity<List<String>> getVehicleList(){
+        List<String> vehicleLists = vehicleMasterService.findVehicleLists();
+       // System.out.println(vehicleLists.size());
+        return ResponseEntity.ok(vehicleLists);
+    }
 }

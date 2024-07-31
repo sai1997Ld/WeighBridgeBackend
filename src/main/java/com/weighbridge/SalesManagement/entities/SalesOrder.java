@@ -39,4 +39,6 @@ public class SalesOrder {
     private boolean status=true;
     private String salePassOfDeductedQuantity;
     private String comment;
+    private double lumps;
+    private double fines;
 }

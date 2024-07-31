@@ -27,4 +27,6 @@ public interface SalesOrderRespository extends JpaRepository<SalesOrder,String> 
 
     SalesOrder findBySaleOrderNoAndSiteIdAndCompanyId(String saleOrderNo,String siteId,String companyId);
     List<SalesOrder> findAllByCustomerIdAndProductNameAndStatusAndSaleOrderNoNot(Long customerId,String productName,boolean status,String saleOrderNo);
+
+    SalesOrder findBySaleOrderNoAndSiteIdAndCompanyIdAndStatus(String saleOrderNo, String siteId, String companyId, boolean b);
 }

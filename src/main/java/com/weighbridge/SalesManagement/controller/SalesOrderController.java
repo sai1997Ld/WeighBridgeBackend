@@ -67,7 +67,6 @@ public class SalesOrderController {
     public ResponseEntity<SalesUserPageResponse> getVehiclesDetail(@RequestParam(defaultValue = "0", required = false) int page,
                                                                                @RequestParam(defaultValue = "5", required = false) int size,
                                                                                @RequestParam(required = false, defaultValue = "purchaseProcessDate") String sortField,
-
                                                                                @RequestParam(defaultValue = "desc", required = false) String sortOrder,@RequestParam String userId){
         Pageable pageable;
         if(sortField!=null && !sortField.isEmpty()){

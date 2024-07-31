@@ -255,6 +255,17 @@ public class VehicleMasterServiceImpl implements VehicleMasterService {
         return false;
     }
 
+    @Override
+    public List<String> findVehicleLists() {
+        List<VehicleMaster> vehicleList = vehicleMasterRepository.findAllByVehicleStatus("Active");
+        List<String> list=new ArrayList<>();
+        for (VehicleMaster vehicleMaster:vehicleList){
+            String vehicleNo = vehicleMaster.getVehicleNo();
+            list.add(vehicleNo);
+        }
+        return  list;
+    }
+
 
     private VehicleResponse getVehicleResponse(VehicleMaster vehicleMaster) {
         VehicleResponse vehicleResponse = new VehicleResponse();

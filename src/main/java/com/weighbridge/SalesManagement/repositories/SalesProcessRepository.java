@@ -19,4 +19,6 @@ public interface SalesProcessRepository extends JpaRepository<SalesProcess,Strin
 
 
     Page<SalesProcess> findAllByStatusAndPurchaseSaleSiteIdAndPurchaseSaleCompanyId(boolean b, String userSite, String userCompany, Pageable pageable);
+
+    SalesProcess findBySalePassNoAndStatus(String salePassNo, Boolean value);
 }

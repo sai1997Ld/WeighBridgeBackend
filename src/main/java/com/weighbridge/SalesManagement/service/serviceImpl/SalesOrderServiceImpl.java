@@ -113,6 +113,8 @@ public class SalesOrderServiceImpl implements SalesOrderService {
         UserMaster userMaster = userMasterRepository.findById(salesOrderRequest.getUserId()).orElseThrow(() -> new ResourceNotFoundException("userId not found."));
         salesOrder.setCompanyId(userMaster.getCompany().getCompanyId());
         salesOrder.setSiteId(userMaster.getSite().getSiteId());
+        salesOrder.setLumps(salesOrderRequest.getLumps());
+        salesOrder.setFines(salesOrderRequest.getFines());
         salesOrderRespository.save(salesOrder);
         return "Sales details added";
     }
@@ -220,7 +222,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
 
     public VehicleAndTransporterDetail getBySalePassNo(String salePassNo){
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        SalesProcess bySalePassNo = salesProcessRepository.findBySalePassNo(salePassNo);
+        SalesProcess bySalePassNo = salesProcessRepository.findBySalePassNoAndStatus(salePassNo,true);
         VehicleAndTransporterDetail vehicleAndTransporterDetail = new VehicleAndTransporterDetail();
         vehicleAndTransporterDetail.setSalePassNo(bySalePassNo.getSalePassNo());
         vehicleAndTransporterDetail.setTransporterName(bySalePassNo.getTransporterName());
@@ -252,7 +254,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
 
     @Override
     public SalesDashboardResponse searchBySaleOrderNo(String saleOrderNo,String siteId,String companyId){
-        SalesOrder bySaleOrderNo = salesOrderRespository.findBySaleOrderNoAndSiteIdAndCompanyId(saleOrderNo,siteId,companyId);
+        SalesOrder bySaleOrderNo = salesOrderRespository.findBySaleOrderNoAndSiteIdAndCompanyIdAndStatus(saleOrderNo,siteId,companyId,true);
         if(bySaleOrderNo!=null){
             SalesDashboardResponse salesDashboardResponse = new SalesDashboardResponse();
             salesDashboardResponse.setPurchaseOrderNo(bySaleOrderNo.getPurchaseOrderNo());
@@ -298,6 +300,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
         }
         return "SaleOrder "+saleOrderNo+" closed successfully";
     }
+
 
  /*   @Override
     public String generateNewSaleOrder(String saleOrderNo) {

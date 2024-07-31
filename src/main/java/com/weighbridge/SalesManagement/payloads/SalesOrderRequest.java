@@ -30,4 +30,6 @@ public class SalesOrderRequest {
 
     private String brokerAddress;
     private String userId;
+    private Double lumps;
+    private Double fines;
 }

@@ -47,4 +47,6 @@ public interface VehicleMasterRepository extends JpaRepository<VehicleMaster,Lon
 
     @Query("SELECT vm.vehicleFitnessUpTo FROM VehicleMaster vm WHERE vm.id = :vehicleId")
     LocalDate findVehicleFitnessById(@Param("vehicleId") long vehicleId);
+
+    List<VehicleMaster> findAllByVehicleStatus(String status);
 }
