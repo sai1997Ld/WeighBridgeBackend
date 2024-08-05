@@ -3,7 +3,7 @@ name: Sync Backend to Personal Repository
 on:
   push:
     branches:
-      - master  # Change if needed
+      - master  # Change to the branch you want to monitor
 
 jobs:
   sync:
@@ -15,19 +15,27 @@ jobs:
       with:
         repository: sai1997Ld/WeighBridgeBackend
         token: ${{ secrets.GITHUB_TOKEN }}
+        ref: master  # Change to the branch you want to monitor
 
     - name: Sync Backend to Personal Repository
       env:
         PERSONAL_REPO_PAT: ${{ secrets.PERSONAL_REPO_PAT }}
       run: |
+        # Configure Git
         git config --global user.name 'giridharpatnaik183'
-        git config --global user.email 'giridharpatnaik183@gmail.com'
-        
+        git config --global user.email 'giridharpatnaik@gmail.com'
+
+        # Add personal repository as remote
         git remote add personal https://giridharpatnaik183:${PERSONAL_REPO_PAT}@github.com/giridharpatnaik183/DockerizingWeighBridgeApp.git
-        
+
+        # Fetch changes from personal repository
         git fetch personal
-        
-        git checkout backend
-        git merge --strategy-option=theirs personal/backend || exit 0
-        
-        git push personal backend --force
+
+        # Checkout main branch
+        git checkout main
+
+        # Merge changes from team repository into main branch
+        git merge --strategy-option=theirs FETCH_HEAD || exit 0
+
+        # Push changes to personal repository
+        git push personal main --force
