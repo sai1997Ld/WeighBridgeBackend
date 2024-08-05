@@ -23,7 +23,7 @@ jobs:
       run: |
         # Configure Git
         git config --global user.name 'giridharpatnaik183'
-        git config --global user.email 'giridharpatnaik@gmail.com'
+        git config --global user.email 'giridharpatnaik183@gmail.com'
 
         # Add personal repository as remote
         git remote add personal https://giridharpatnaik183:${PERSONAL_REPO_PAT}@github.com/giridharpatnaik183/DockerizingWeighBridgeApp.git
