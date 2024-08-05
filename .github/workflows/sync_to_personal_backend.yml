@@ -3,7 +3,7 @@ name: Sync Backend to Personal Repository
 on:
   push:
     branches:
-      - main  # Change if needed
+      - master  # Change if needed
 
 jobs:
   sync:
