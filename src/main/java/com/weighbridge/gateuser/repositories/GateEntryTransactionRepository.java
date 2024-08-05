@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -101,5 +102,7 @@ public interface GateEntryTransactionRepository extends JpaRepository<GateEntryT
     List<Integer> findTicketNosByCompanyIdAndSiteIdAndSupplierIdAndTransactionDate(@Param("companyId") String companyId, @Param("siteId") String siteId, @Param("supplierId") Long supplierId, @Param("transactionDate") LocalDate date);
 
 
+    GateEntryTransaction findByTpNo(String tpNo);
+    List<GateEntryTransaction> findBySiteIdAndCompanyIdAndVehicleOutBetweenOrderByVehicleOutDesc(String siteId, String companyId, LocalDateTime startDate, LocalDateTime endDate);
 }
 

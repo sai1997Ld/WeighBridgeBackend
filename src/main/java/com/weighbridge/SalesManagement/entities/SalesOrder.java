@@ -41,4 +41,5 @@ public class SalesOrder {
     private String comment;
     private double lumps;
     private double fines;
+    private String rangeRatio;
 }

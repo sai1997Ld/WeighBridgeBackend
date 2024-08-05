@@ -431,16 +431,17 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
 
         for (Map.Entry<String, Object> entry : transactionRequest.entrySet()) {
             String key = entry.getKey();
-           Object obj = entry.getValue();
-           Double value = null;
+            Object obj = Double.parseDouble(String.valueOf(entry.getValue()));
+            System.out.println("-------"+entry.getValue());
+            Double value = null;
             if(key.equalsIgnoreCase("Size")){
                 continue;
             }
             if (obj == null) {
                 throw new IllegalArgumentException("Quality value for " + key + " cannot be null");
             }
-            if(obj instanceof Double){
-                value= (Double) obj;
+            if(obj!=null){
+                value=(Double) obj;
             }
 
             Long qualityId = qualityRangeMasterRepository.findQualityRangeIdByParameterNameAndMaterialMasterMaterialNameAndSupplierNameAndSupplierAddress(key, materialName, supplierMaster.getSupplierName(), supplierAddress);
@@ -483,7 +484,6 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
             }
             qualityRangeIds.append(qualityId).append(",");
             qualityValues.append(value).append(",");
-
         }
     }
 

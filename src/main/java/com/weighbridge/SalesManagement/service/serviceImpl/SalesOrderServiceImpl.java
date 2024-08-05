@@ -13,7 +13,10 @@ import com.weighbridge.admin.exceptions.ResourceNotFoundException;
 import com.weighbridge.admin.repsitories.CustomerMasterRepository;
 import com.weighbridge.admin.repsitories.MaterialMasterRepository;
 import com.weighbridge.admin.repsitories.UserMasterRepository;
+import com.weighbridge.gateuser.entities.GateEntryTransaction;
+import com.weighbridge.gateuser.repositories.GateEntryTransactionRepository;
 import com.weighbridge.weighbridgeoperator.entities.WeighmentTransaction;
+import com.weighbridge.weighbridgeoperator.repositories.WeighmentTransactionRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +55,12 @@ public class SalesOrderServiceImpl implements SalesOrderService {
     @Autowired
     private HttpServletRequest httpServletRequest;
 
+    @Autowired
+    private GateEntryTransactionRepository gateEntryTransactionRepository;
+
+    @Autowired
+    private WeighmentTransactionRepository weighmentTransactionRepository;
+
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
 
@@ -82,6 +91,9 @@ public class SalesOrderServiceImpl implements SalesOrderService {
            addressLine1=parts[0].trim();
            addressLine2=parts[1].trim();
        }
+        System.out.println("cs"+addressLine1);
+        System.out.println("cs1"+addressLine2);
+        System.out.println("cs2"+address);
        /*
         Boolean customer = customerMasterRepository.existsByCustomerNameAndCustomerAddressLine1AndCustomerAddressLine2(salesOrderRequest.getCustomerName(), addressLine1, addressLine2);
         if(!customer){
@@ -95,9 +107,11 @@ public class SalesOrderServiceImpl implements SalesOrderService {
         }*/
         System.out.println("printCustomer "+salesOrderRequest.getCustomerName()+","+salesOrderRequest.getCustomerAddress());
         Long customerIdByCustomerNameAndAddressLines = customerMasterRepository.findCustomerIdByCustomerNameAndAddressLines(salesOrderRequest.getCustomerName(), addressLine1, addressLine2);
+        System.out.println(customerIdByCustomerNameAndAddressLines);
         salesOrder.setCustomerId(customerIdByCustomerNameAndAddressLines);
+        System.out.println(salesOrder.getCustomerId());
         salesOrder.setBrokerAddress(salesOrderRequest.getBrokerAddress());
-
+        System.out.println("1");
 
         //Added material to material master if doesnot exist in MaterialMaster
      /*   boolean material = materialMasterRepository.existsByMaterialName(salesOrderRequest.getProductName());
@@ -108,24 +122,59 @@ public class SalesOrderServiceImpl implements SalesOrderService {
         }
 */
         salesOrder.setProductName(salesOrderRequest.getProductName());
+        System.out.println("2");
        // salesOrder.setProgressiveQuantity(salesOrderRequest.getProgressiveQuantity());
         salesOrder.setBalanceQuantity(salesOrderRequest.getOrderedQuantity());
+        System.out.println("3");
         UserMaster userMaster = userMasterRepository.findById(salesOrderRequest.getUserId()).orElseThrow(() -> new ResourceNotFoundException("userId not found."));
+        System.out.println("4");
         salesOrder.setCompanyId(userMaster.getCompany().getCompanyId());
         salesOrder.setSiteId(userMaster.getSite().getSiteId());
-        salesOrder.setLumps(salesOrderRequest.getLumps());
-        salesOrder.setFines(salesOrderRequest.getFines());
+        if(salesOrderRequest.getProductName().equalsIgnoreCase("Sponge Iron")) {
+            double lumpsQuanntity = salesOrder.getOrderedQuantity() * salesOrderRequest.getLumps() / 100;
+            double finesQuantity = salesOrder.getOrderedQuantity() * salesOrderRequest.getFines() / 100;
+            salesOrder.setLumps(lumpsQuanntity);
+            salesOrder.setFines(finesQuantity);
+            salesOrder.setRangeRatio(salesOrderRequest.getLumps() + "-" + salesOrderRequest.getFines());
+        }
         salesOrderRespository.save(salesOrder);
         return "Sales details added";
     }
 
     @Override
     public SalesUserPageResponse getAllSalesDetails(String companyId,String siteId,Pageable pageable) {
-        Page<SalesOrder> allSales = salesOrderRespository.findAllBySiteIdAndCompanyId(siteId,companyId,pageable);
+        Page<SalesOrder> allSales = salesOrderRespository.findAllBySiteIdAndCompanyIdAndStatus(siteId,companyId,pageable,true);
         List<SalesOrder> allUsers = allSales.getContent();
         List<SalesDashboardResponse> list = new ArrayList<>();
         for(SalesOrder salesOrder : allUsers) {
-            if(salesOrder.isStatus()) {
+            double lumps = salesOrder.getLumps();
+            double fines = salesOrder.getFines();
+            /*double totalOrder= salesOrder.getOrderedQuantity();
+            double lumpsQuantity = totalOrder * lumps / 100;
+            double finesQuantity = totalOrder * fines / 100;*/
+          /*  List<SalesProcess> byPurchaseSaleSaleOrderNo = salesProcessRepository.findByPurchaseSaleSaleOrderNo(salesOrder.getSaleOrderNo());
+            double lumpsQty = 0.0;
+            double finesQty=0.0;
+            for (SalesProcess salesProcess:byPurchaseSaleSaleOrderNo){
+                if(salesProcess.getProductType().equalsIgnoreCase("lumps")){
+                    GateEntryTransaction byTpNo = gateEntryTransactionRepository.findByTpNo(salesProcess.getSalePassNo());
+                    if(byTpNo!=null) {
+                        WeighmentTransaction weight = weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTpNo.getTicketNo());
+                       Double netWeight= weight!=null?weight.getNetWeight():0.0;
+                        lumpsQty = lumps - netWeight;
+                    }
+                }
+                if(salesProcess.getProductType().equalsIgnoreCase("fines")){
+                    GateEntryTransaction byTpNo = gateEntryTransactionRepository.findByTpNo(salesProcess.getSalePassNo());
+                    if(byTpNo!=null) {
+                        WeighmentTransaction weight = weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTpNo.getTicketNo());
+                        Double netWeight= weight!=null?weight.getNetWeight():0.0;
+                        finesQty= fines- netWeight;
+                    }
+                }
+            }*/
+            System.out.println(salesOrder.isStatus());
+            /*if(salesOrder.isStatus()) {*/
                 SalesDashboardResponse salesDashboardResponse = new SalesDashboardResponse();
                 salesDashboardResponse.setPurchaseOrderNo(salesOrder.getPurchaseOrderNo());
                 salesDashboardResponse.setOrderedQty(salesOrder.getOrderedQuantity());
@@ -136,6 +185,8 @@ public class SalesOrderServiceImpl implements SalesOrderService {
                 salesDashboardResponse.setSaleOrderNo(salesOrder.getSaleOrderNo());
                 salesDashboardResponse.setProductName(salesOrder.getProductName());
                 salesDashboardResponse.setBrokerName(salesOrder.getBrokerName());
+                salesDashboardResponse.setLumpsBalance(lumps);
+                salesDashboardResponse.setFinesBalance(fines);
                 salesDashboardResponse.setOrderedQty(
                         BigDecimal.valueOf(salesOrder.getOrderedQuantity()).setScale(3, RoundingMode.HALF_UP).doubleValue()
                 );
@@ -147,7 +198,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
                 );
                 // Assuming getPurchasePassNo() is a method of SalesProcess, not List<SalesProcess>
                 list.add(salesDashboardResponse);
-            }
+          //  }
         }
         SalesUserPageResponse salesUserPageResponse=new SalesUserPageResponse();
         salesUserPageResponse.setSales(list);
@@ -274,7 +325,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
     }
 
     @Override
-    public List<SalesOrder> searchBycustomerNameAndProductAndNotSaleOrderNo(String customerName, String customerAddress, String productName, String saleOrder) {
+    public List<SalesOrder> searchBycustomerNameAndProductAndNotSaleOrderNo(String customerName, String customerAddress, String productName, String saleOrder,String productType) {
         String address=customerAddress;
         String addressLine1=null;
         String addressLine2=null;
@@ -287,7 +338,26 @@ public class SalesOrderServiceImpl implements SalesOrderService {
         Long customerId = customerMasterRepository.findCustomerIdByCustomerNameAndAddressLines(customerName, addressLine1, addressLine2);
         System.out.println("-------"+customerId);
         List<SalesOrder> orderList = salesOrderRespository.findAllByCustomerIdAndProductNameAndStatusAndSaleOrderNoNot(customerId, productName, true,saleOrder);
-        return orderList;
+        List<SalesOrder> list=new ArrayList<>();
+        if(productType.equalsIgnoreCase("lumps")) {
+            for (SalesOrder salesOrder : orderList) {
+                    if(salesOrder.getLumps()>0){
+                        list.add(salesOrder);
+                    }
+            }
+            return list;
+        } else if (productType.equalsIgnoreCase("fines")) {
+            for (SalesOrder salesOrder : orderList) {
+                if(salesOrder.getLumps()>0){
+                    list.add(salesOrder);
+                }
+            }
+            return list;
+        }
+        else{
+            return orderList;
+        }
+
     }
 
     @Override

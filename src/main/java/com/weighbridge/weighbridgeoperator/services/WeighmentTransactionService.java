@@ -24,7 +24,7 @@ public interface WeighmentTransactionService {
      * @param weighmentRequest The request containing weighment details.
      * @return A string indicating the status of the save operation.
      */
-    String saveWeight(WeighmentRequest weighmentRequest, String userId, MultipartFile frontImg1, MultipartFile backImg2, MultipartFile topImg3,
+    String saveWeight(WeighmentRequest weighmentRequest,String userId, MultipartFile frontImg1, MultipartFile backImg2, MultipartFile topImg3,
                       MultipartFile bottomImg4, MultipartFile leftImg5,
                       MultipartFile rightImg6, String role);
 

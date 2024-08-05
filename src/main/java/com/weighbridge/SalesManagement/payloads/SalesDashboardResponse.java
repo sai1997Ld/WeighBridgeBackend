@@ -13,4 +13,6 @@ public class SalesDashboardResponse {
   private double orderedQty;
   private double progressiveQty;
   private double balanceQty;
+  private double lumpsBalance;
+  private double finesBalance;
 }

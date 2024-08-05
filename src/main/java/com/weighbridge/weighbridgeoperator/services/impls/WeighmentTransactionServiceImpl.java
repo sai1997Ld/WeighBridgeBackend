@@ -211,21 +211,26 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
             System.out.println(selectedSaleOrder);
             //to handle if newSalepass generated incase of low balancequantity for any salesorder
             if(gateEntryId.getTransactionType().equalsIgnoreCase("Outbound")&&extraSalePass!=null){
-                System.out.println("new");
                 newSaleOrder(gateEntryId.getTicketNo(), netWeight);
             }
 
             //to handle if newSalepass generated incase of low balancequantity for any salesorder
             else if(gateEntryId.getTransactionType().equalsIgnoreCase("Outbound")&&selectedSaleOrder!=null){
-                System.out.println("existing");
                 existingSaleOrder(selectedSaleOrder,netWeight, gateEntryId.getTicketNo());
             }
 
             else {
                 if (gateEntryId.getTransactionType().equalsIgnoreCase("Outbound")){
-                System.out.println("nothing");
                 SalesProcess bySalePassNo = salesProcessRepository.findBySalePassNo(gateEntryId.getTpNo());
                 SalesOrder bySaleOrderNo = salesOrderRespository.findBySaleOrderNo(bySalePassNo.getPurchaseSale().getSaleOrderNo());
+                if(gateEntryId.getMaterialType()!=null&&gateEntryId.getMaterialType().equalsIgnoreCase("lumps")){
+                    double lumpsQty = bySaleOrderNo.getLumps() - netWeight;
+                    bySaleOrderNo.setLumps(lumpsQty);
+                }
+                if(gateEntryId.getMaterialType()!=null&&gateEntryId.getMaterialType().equalsIgnoreCase("fines")){
+                    double finesQty = bySaleOrderNo.getLumps() - netWeight;
+                    bySaleOrderNo.setFines(finesQty);
+                }
                     double progressiveQty = bySaleOrderNo.getProgressiveQuantity() + netWeight;
                     double balanceQty = bySaleOrderNo.getOrderedQuantity() - progressiveQty;
                     bySaleOrderNo.setProgressiveQuantity(progressiveQty);
@@ -531,11 +536,40 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
         GateEntryTransaction gateEntryTransaction = gateEntryTransactionRepository.findById(ticketNo).orElseThrow(() -> new ResourceNotFoundException("ticket not found"));
         SalesProcess bySalePassNo = salesProcessRepository.findBySalePassNo(gateEntryTransaction.getTpNo());
         SalesOrder bySaleOrderNo = salesOrderRespository.findBySaleOrderNo(bySalePassNo.getPurchaseSale().getSaleOrderNo());
-        bySaleOrderNo.setBalanceQuantity(bySaleOrderNo.getBalanceQuantity()-netWeight);
-        bySaleOrderNo.setProgressiveQuantity(bySaleOrderNo.getProgressiveQuantity()+netWeight);
-        bySaleOrderNo.setStatus(false);
+        if(gateEntryTransaction.getMaterialType()!=null&&gateEntryTransaction.getMaterialType().equalsIgnoreCase("lumps")){
+            bySalePassNo.setExtraSalePassNo(bySalePassNo.getExtraSalePassNo()+"_"+Math.abs(bySaleOrderNo.getLumps()-netWeight));
+            bySaleOrderNo.setLumps(bySaleOrderNo.getLumps()-netWeight);
+            bySaleOrderNo.setBalanceQuantity(bySaleOrderNo.getLumps()+bySaleOrderNo.getFines());
+            bySaleOrderNo.setProgressiveQuantity(bySaleOrderNo.getOrderedQuantity()-bySaleOrderNo.getBalanceQuantity());
+            if(bySaleOrderNo.getBalanceQuantity()<=0){
+                bySaleOrderNo.setStatus(false);
+            }
+        }
+        else if(gateEntryTransaction.getMaterialType()!=null&&gateEntryTransaction.getMaterialType().equalsIgnoreCase("fines")){
+            bySalePassNo.setExtraSalePassNo(bySalePassNo.getExtraSalePassNo()+"_"+Math.abs(bySaleOrderNo.getFines()-netWeight));
+            bySaleOrderNo.setFines(bySaleOrderNo.getFines()-netWeight);
+            bySaleOrderNo.setBalanceQuantity(bySaleOrderNo.getLumps()+bySaleOrderNo.getFines());
+            bySaleOrderNo.setProgressiveQuantity(bySaleOrderNo.getOrderedQuantity()-bySaleOrderNo.getBalanceQuantity());
+            if(bySaleOrderNo.getBalanceQuantity()<=0){
+                bySaleOrderNo.setStatus(false);
+            }
+        }
+        else{
+          bySalePassNo.setExtraSalePassNo(bySalePassNo.getExtraSalePassNo()+"_"+Math.abs(bySaleOrderNo.getBalanceQuantity()-netWeight));
+          bySaleOrderNo.setProgressiveQuantity(bySaleOrderNo.getOrderedQuantity()+bySaleOrderNo.getBalanceQuantity());
+          bySaleOrderNo.setBalanceQuantity(bySaleOrderNo.getBalanceQuantity()-netWeight);
+            if(bySaleOrderNo.getBalanceQuantity()<=0){
+                bySaleOrderNo.setStatus(false);
+            }
+        }
+      /*  bySaleOrderNo.setBalanceQuantity(bySaleOrderNo.getLumps()+bySaleOrderNo.getFines());
+        bySaleOrderNo.setProgressiveQuantity(bySaleOrderNo.getOrderedQuantity()-bySaleOrderNo.getBalanceQuantity());
+        if(bySaleOrderNo.getBalanceQuantity()<=0){
+            bySaleOrderNo.setStatus(false);
+        }*/
+
         SalesOrder salesOrder = salesOrderRespository.save(bySaleOrderNo);
-        bySalePassNo.setExtraSalePassNo(bySalePassNo.getExtraSalePassNo()+"_"+Math.abs(salesOrder.getBalanceQuantity()));
+       // bySalePassNo.setExtraSalePassNo(bySalePassNo.getExtraSalePassNo()+"_"+Math.abs(salesOrder.getBalanceQuantity()));
         salesProcessRepository.save(bySalePassNo);
         return "Exceeded quantity recorded by extraSalepass";
     }
@@ -546,22 +580,67 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
         GateEntryTransaction gateEntryTransaction = gateEntryTransactionRepository.findById(ticketNo).orElseThrow(() -> new ResourceNotFoundException("ticket not found"));
         SalesProcess previousSalePass = salesProcessRepository.findBySalePassNo(gateEntryTransaction.getTpNo());
         SalesOrder referencedSaleOrderNo = salesOrderRespository.findBySaleOrderNo(previousSalePass.getPurchaseSale().getSaleOrderNo());
+        //to get quantity to be deducted
         Double quantity=netWeight-referencedSaleOrderNo.getBalanceQuantity();
-        System.out.println(quantity);
-        existingSaleOrderNo.setBalanceQuantity(existingSaleOrderNo.getBalanceQuantity()-Math.abs(quantity));
-        existingSaleOrderNo.setProgressiveQuantity(existingSaleOrderNo.getProgressiveQuantity()+Math.abs(quantity));
         String salePassOfDeductedQuantity = existingSaleOrderNo.getSalePassOfDeductedQuantity();
-        String salePassDetail="";
-        if(salePassOfDeductedQuantity!=null){
-            salePassDetail=salePassOfDeductedQuantity;
-            existingSaleOrderNo.setSalePassOfDeductedQuantity(salePassDetail+","+previousSalePass.getSalePassNo()+"_"+quantity);
+        String salePassDetail = "";
+        if(gateEntryTransaction.getMaterialType()!=null&&gateEntryTransaction.getMaterialType().equalsIgnoreCase("lumps")){
+            double balanceLumps = netWeight - referencedSaleOrderNo.getLumps();
+            existingSaleOrderNo.setLumps(existingSaleOrderNo.getLumps()-balanceLumps);
+            referencedSaleOrderNo.setLumps(0.0);
+            existingSaleOrderNo.setBalanceQuantity(existingSaleOrderNo.getBalanceQuantity()-balanceLumps);
+            existingSaleOrderNo.setProgressiveQuantity(existingSaleOrderNo.getProgressiveQuantity()+balanceLumps);
+            if (salePassOfDeductedQuantity != null) {
+                salePassDetail = salePassOfDeductedQuantity;
+                existingSaleOrderNo.setSalePassOfDeductedQuantity(salePassDetail + "," + previousSalePass.getSalePassNo() + "_" +balanceLumps);
+            } else {
+                existingSaleOrderNo.setSalePassOfDeductedQuantity(previousSalePass.getSalePassNo() + "_" +balanceLumps);
+            }
+            referencedSaleOrderNo.setProgressiveQuantity(referencedSaleOrderNo.getProgressiveQuantity()+referencedSaleOrderNo.getLumps());
+            referencedSaleOrderNo.setBalanceQuantity(referencedSaleOrderNo.getOrderedQuantity()-referencedSaleOrderNo.getProgressiveQuantity());
+            if(referencedSaleOrderNo.getBalanceQuantity()<=0){
+                referencedSaleOrderNo.setStatus(false);
+            }
         }
-        else {
-        existingSaleOrderNo.setSalePassOfDeductedQuantity(previousSalePass.getSalePassNo()+"_"+quantity);
+       else if(gateEntryTransaction.getMaterialType()!=null&&gateEntryTransaction.getMaterialType().equalsIgnoreCase("fines")){
+            double balanceFines = netWeight - referencedSaleOrderNo.getFines();
+            existingSaleOrderNo.setFines(existingSaleOrderNo.getFines()-balanceFines);
+            referencedSaleOrderNo.setFines(0.0);
+            existingSaleOrderNo.setBalanceQuantity(existingSaleOrderNo.getBalanceQuantity()-balanceFines);
+            existingSaleOrderNo.setProgressiveQuantity(existingSaleOrderNo.getProgressiveQuantity()+balanceFines);
+            if (salePassOfDeductedQuantity != null) {
+                salePassDetail = salePassOfDeductedQuantity;
+                existingSaleOrderNo.setSalePassOfDeductedQuantity(salePassDetail + "," + previousSalePass.getSalePassNo() + "_" + balanceFines);
+            } else {
+                existingSaleOrderNo.setSalePassOfDeductedQuantity(previousSalePass.getSalePassNo() + "_" + balanceFines);
+            }
+            referencedSaleOrderNo.setProgressiveQuantity(referencedSaleOrderNo.getProgressiveQuantity()+referencedSaleOrderNo.getFines());
+            referencedSaleOrderNo.setBalanceQuantity(referencedSaleOrderNo.getOrderedQuantity()-referencedSaleOrderNo.getProgressiveQuantity());
+            if(referencedSaleOrderNo.getBalanceQuantity()<=0){
+                referencedSaleOrderNo.setStatus(false);
+            }
         }
-        referencedSaleOrderNo.setProgressiveQuantity(referencedSaleOrderNo.getProgressiveQuantity()+referencedSaleOrderNo.getBalanceQuantity());
-        referencedSaleOrderNo.setBalanceQuantity(0.0);
-        referencedSaleOrderNo.setStatus(false);
+       else {
+            existingSaleOrderNo.setBalanceQuantity(existingSaleOrderNo.getBalanceQuantity() - quantity);
+            existingSaleOrderNo.setProgressiveQuantity(existingSaleOrderNo.getOrderedQuantity() - existingSaleOrderNo.getBalanceQuantity());
+            //  double deductedQty=quantity - existingSaleOrderNo.getBalanceQuantity();
+            if (salePassOfDeductedQuantity != null) {
+                salePassDetail = salePassOfDeductedQuantity;
+                existingSaleOrderNo.setSalePassOfDeductedQuantity(salePassDetail + "," + previousSalePass.getSalePassNo() + "_" + quantity);
+            } else {
+                existingSaleOrderNo.setSalePassOfDeductedQuantity(previousSalePass.getSalePassNo() + "_" + quantity);
+            }
+            referencedSaleOrderNo.setProgressiveQuantity(referencedSaleOrderNo.getProgressiveQuantity()+referencedSaleOrderNo.getBalanceQuantity());
+            referencedSaleOrderNo.setBalanceQuantity(referencedSaleOrderNo.getOrderedQuantity()-referencedSaleOrderNo.getProgressiveQuantity());
+            if(referencedSaleOrderNo.getBalanceQuantity()<=0){
+                referencedSaleOrderNo.setStatus(false);
+            }
+        }
+     /*   referencedSaleOrderNo.setProgressiveQuantity(referencedSaleOrderNo.getProgressiveQuantity()+referencedSaleOrderNo.getBalanceQuantity());
+        referencedSaleOrderNo.setBalanceQuantity(referencedSaleOrderNo.getLumps()+referencedSaleOrderNo.getFines());
+        if(referencedSaleOrderNo.getBalanceQuantity()<=0){
+            referencedSaleOrderNo.setStatus(false);
+        }*/
         salesOrderRespository.save(referencedSaleOrderNo);
         salesOrderRespository.save(existingSaleOrderNo);
         return "extra quantity deducted from selected SaleOrderNo "+saleOrderNo;

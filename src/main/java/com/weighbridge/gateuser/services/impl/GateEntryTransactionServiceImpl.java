@@ -40,6 +40,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -272,8 +273,10 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Material ID is required.")));
 
             // Handle null for material type
-            gateEntryTransaction.setMaterialType(Optional.ofNullable(materialType)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Material type is required.")));
+            if(gateEntryTransactionRequest.getMaterial().equalsIgnoreCase("Sponge Iron")) {
+                gateEntryTransaction.setMaterialType(Optional.ofNullable(materialType)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Material type is required.")));
+            }
 
             // Set supplier ID with a default value of 0
             gateEntryTransaction.setSupplierId(Optional.ofNullable(supplierId).orElse(0L));
@@ -304,8 +307,9 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
             gateEntryTransaction.setEwaybillNo(Optional.ofNullable(gateEntryTransactionRequest.getEwayBillNo()).orElse("N/A"));
 
             // Handle null for transaction type
-            gateEntryTransaction.setTransactionType(Optional.ofNullable(gateEntryTransactionRequest.getTransactionType())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transaction type is required.")));
+                gateEntryTransaction.setTransactionType(Optional.ofNullable(gateEntryTransactionRequest.getTransactionType())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transaction type is required.")));
+
 
             // Set customer ID with a default value of 0
             gateEntryTransaction.setCustomerId(Optional.ofNullable(customerId).orElse(0L));
@@ -806,43 +810,43 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
 
     @Override
     public List<GateEntryTransactionResponse> getAllGateEntryTransactionForWeighmentReport(LocalDate startDate, LocalDate endDate, String companyName, String siteName,String userId) {
-            String userCompany;
-            String userSite;
-            String userSiteAddress;
-            // Set user session details
-            if (companyName == null && siteName == null) {
-                UserMaster userMaster = userMasterRepository.findById(userId).orElseThrow(()-> new IllegalArgumentException("User Not Found "+userId));
+        String userCompany;
+        String userSite;
+        String userSiteAddress;
+        // Set user session details
+        if (companyName == null && siteName == null) {
+            UserMaster userMaster = userMasterRepository.findById(userId).orElseThrow(()-> new IllegalArgumentException("User Not Found "+userId));
 
-                userSite = (String) Optional.ofNullable(userMaster.getSite().getSiteId())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "UserSite Not Found! "));
-                userCompany = (String) Optional.ofNullable(userMaster.getCompany().getCompanyId())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "UserCompany Not Found! "));
-            } else if (companyName != null && !companyName.trim().isEmpty() && siteName != null && !siteName.trim().isEmpty()) {
+            userSite = (String) Optional.ofNullable(userMaster.getSite().getSiteId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "UserSite Not Found! "));
+            userCompany = (String) Optional.ofNullable(userMaster.getCompany().getCompanyId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "UserCompany Not Found! "));
+        } else if (companyName != null && !companyName.trim().isEmpty() && siteName != null && !siteName.trim().isEmpty()) {
 
-                // Retrieve company ID
-                userCompany = companyMasterRepository.findCompanyIdByCompanyName(companyName.trim());
-                if (userCompany == null) {
-                    throw new IllegalArgumentException("No company found with the given name: " + companyName);
-                }
-                // Split siteName into name and address
-                String[] requestSite = siteName.split(",", 2);
-                if (requestSite.length < 2) {
-                    throw new IllegalArgumentException("siteName format is incorrect. Expected format: 'SiteName,SiteAddress'");
-                }
-                // Trim to remove leading/trailing spaces
-                String siteNamePart = requestSite[0].trim();
-                String siteAddressPart = requestSite[1].trim();
-                // Retrieve site ID
-                userSite = siteMasterRepository.findSiteIdBySiteName(siteNamePart, siteAddressPart);
-
-                if (userSite == null) {
-                    throw new IllegalArgumentException("No site found with the given name and address: " + siteName);
-                }
-
-            } else {
-
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Session Expired, Login again !");
+            // Retrieve company ID
+            userCompany = companyMasterRepository.findCompanyIdByCompanyName(companyName.trim());
+            if (userCompany == null) {
+                throw new IllegalArgumentException("No company found with the given name: " + companyName);
             }
+            // Split siteName into name and address
+            String[] requestSite = siteName.split(",", 2);
+            if (requestSite.length < 2) {
+                throw new IllegalArgumentException("siteName format is incorrect. Expected format: 'SiteName,SiteAddress'");
+            }
+            // Trim to remove leading/trailing spaces
+            String siteNamePart = requestSite[0].trim();
+            String siteAddressPart = requestSite[1].trim();
+            // Retrieve site ID
+            userSite = siteMasterRepository.findSiteIdBySiteName(siteNamePart, siteAddressPart);
+
+            if (userSite == null) {
+                throw new IllegalArgumentException("No site found with the given name and address: " + siteName);
+            }
+
+        } else {
+
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Session Expired, Login again !");
+        }
         try {
             if (startDate == null && endDate != null) {
                 startDate = endDate;
@@ -853,9 +857,11 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
             LocalDate finalStartDate = startDate;
             LocalDate finalEndDate = endDate;
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+            LocalDateTime startDateTime = finalStartDate.atStartOfDay();
+            LocalDateTime endDateTime = finalEndDate.atTime(LocalTime.MAX); // End of the day
 
 //            UserMaster user=userMasterRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user not found"));
-            List<GateEntryTransaction> allTransactions = gateEntryTransactionRepository.findBySiteIdAndCompanyIdAndTransactionDateBetweenOrderByTransactionDateDesc(userSite,userCompany, startDate, endDate);
+            List<GateEntryTransaction> allTransactions = gateEntryTransactionRepository.findBySiteIdAndCompanyIdAndVehicleOutBetweenOrderByVehicleOutDesc(userSite,userCompany, startDateTime, endDateTime);
             System.out.println("GateEntryTransactionServiceImpl.getAllGateEntryTransaction" + allTransactions);
             List<GateEntryTransactionResponse> responseList = new ArrayList<>();
             for (GateEntryTransaction transaction : allTransactions) {

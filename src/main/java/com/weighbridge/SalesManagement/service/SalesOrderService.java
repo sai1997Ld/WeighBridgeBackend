@@ -21,7 +21,7 @@ public interface SalesOrderService{
 
     public SalesDashboardResponse searchBySaleOrderNo(String saleOrderNo,String siteId,String companyId);
 
-    List<SalesOrder> searchBycustomerNameAndProductAndNotSaleOrderNo(String customerName,String customerAddress, String ProductName,String saleOrder);
+    List<SalesOrder> searchBycustomerNameAndProductAndNotSaleOrderNo(String customerName,String customerAddress, String ProductName,String saleOrder,String productType);
 
     String closeSaleOrder(String saleOrderNo,String message);
 

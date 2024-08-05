@@ -98,8 +98,8 @@ public class SalesOrderController {
     public ResponseEntity<List<SalesOrder>> searchBycustomerNameAndProduct(@RequestParam String customerName,
                                                                            @RequestParam String customerAddress,
                                                                            @RequestParam String productName,
-                                                                           @RequestParam String saleOrder){
-        List<SalesOrder> salesOrders = salesOrderService.searchBycustomerNameAndProductAndNotSaleOrderNo(customerName, customerAddress, productName, saleOrder);
+                                                                           @RequestParam String saleOrder,@RequestParam String productType){
+        List<SalesOrder> salesOrders = salesOrderService.searchBycustomerNameAndProductAndNotSaleOrderNo(customerName, customerAddress, productName, saleOrder,productType);
         return new ResponseEntity<>(salesOrders, HttpStatus.OK);
     }
 

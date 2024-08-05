@@ -14,6 +14,7 @@ import com.weighbridge.admin.repsitories.VehicleMasterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,12 +67,14 @@ public class SalesProcessServiceImpl implements SalesProcessService {
         process.setProductType(salesProcessRequest.getProductType());
         SalesOrder bySaleOrderNo = salesOrderRespository.findBySaleOrderNo(String.valueOf(salesProcessRequest.getSaleOrderNo()));
         System.out.println(bySaleOrderNo);
-        process.setPurchaseProcessDate(bySaleOrderNo.getPurchaseOrderedDate());
+        process.setPurchaseProcessDate(bySaleOrderNo!=null?bySaleOrderNo.getPurchaseOrderedDate(): LocalDate.parse(""));
         process.setPurchaseSale(bySaleOrderNo);
         process.setTransporterName(salesProcessRequest.getTransporterName());
         process.setSalePassNo(generateSalePassNo(salesProcessRequest.getSaleOrderNo()));
         if(salesCheck!=null) {
+            System.out.println("hi");
             if (salesCheck.equalsIgnoreCase("newSaleOrder")) {
+                System.out.println("hello");
                 process.setExtraSalePassNo(process.getPurchaseSale().getSaleOrderNo() + "_" + process.getSalePassNo());
             }
         }
