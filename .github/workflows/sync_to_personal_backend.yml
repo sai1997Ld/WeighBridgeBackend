@@ -1,0 +1,33 @@
+name: Sync Backend to Personal Repository
+
+on:
+  push:
+    branches:
+      - main  # Change if needed
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Backend Repository
+      uses: actions/checkout@v2
+      with:
+        repository: sai1997Ld/WeighBridgeBackend
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Sync Backend to Personal Repository
+      env:
+        PERSONAL_REPO_PAT: ${{ secrets.PERSONAL_REPO_PAT }}
+      run: |
+        git config --global user.name 'giridharpatnaik183'
+        git config --global user.email 'giridharpatnaik183@gmail.com'
+        
+        git remote add personal https://giridharpatnaik183:${PERSONAL_REPO_PAT}@github.com/giridharpatnaik183/DockerizingWeighBridgeApp.git
+        
+        git fetch personal
+        
+        git checkout backend
+        git merge --strategy-option=theirs personal/backend || exit 0
+        
+        git push personal backend --force
