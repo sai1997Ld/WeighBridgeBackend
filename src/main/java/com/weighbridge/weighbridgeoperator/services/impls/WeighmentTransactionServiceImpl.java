@@ -228,7 +228,7 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
                     bySaleOrderNo.setLumps(lumpsQty);
                 }
                 if(gateEntryId.getMaterialType()!=null&&gateEntryId.getMaterialType().equalsIgnoreCase("fines")){
-                    double finesQty = bySaleOrderNo.getLumps() - netWeight;
+                    double finesQty = bySaleOrderNo.getFines() - netWeight;
                     bySaleOrderNo.setFines(finesQty);
                 }
                     double progressiveQty = bySaleOrderNo.getProgressiveQuantity() + netWeight;
