@@ -56,13 +56,13 @@ public class ManagementDashboardController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/completedQualities/GoodOrBad")
+    @GetMapping("/completedQualities/GoodOrBad")
     public ResponseEntity<List<ManagementQualityDashboardResponse>> getGoodOrBadQualities(
             @RequestBody ManagementPayload managementRequest,
             @RequestParam(required = false) String transactionType,
-            @RequestParam(required = false) String qualityType)
+            @RequestParam(required = false) String qualityType,@RequestParam(required = false) LocalDate date)
              {
-        List<ManagementQualityDashboardResponse> response = managementDashboardService.getGoodOrBadQualities(managementRequest, transactionType, qualityType);
+        List<ManagementQualityDashboardResponse> response = managementDashboardService.getGoodOrBadQualities(managementRequest, transactionType, qualityType,date);
         return ResponseEntity.ok(response);
     }
     @PostMapping("/goodQualities")

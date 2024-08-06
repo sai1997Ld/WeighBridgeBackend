@@ -447,10 +447,16 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
             Long qualityId = qualityRangeMasterRepository.findQualityRangeIdByParameterNameAndMaterialMasterMaterialNameAndSupplierNameAndSupplierAddress(key, materialName, supplierMaster.getSupplierName(), supplierAddress);
             QualityRangeMaster qualityRangeMaster = qualityRangeMasterRepository.findById(qualityId)
                     .orElseThrow(() -> new ResourceNotFoundException("Range not found for qualityId: " + qualityId));
-
-            if (value < qualityRangeMaster.getRangeFrom() || value > qualityRangeMaster.getRangeTo()) {
-                isQualityGood = false;
-            }
+          if(key.equalsIgnoreCase("Carbon")||key.equalsIgnoreCase("Sulphur")||key.equalsIgnoreCase("%Non-Mag")||key.equalsIgnoreCase("-1mm")) {
+              if (value < qualityRangeMaster.getRangeFrom() || value > qualityRangeMaster.getRangeTo()) {
+                  isQualityGood = false;
+              }
+          }
+          else{
+              if(value < qualityRangeMaster.getRangeFrom()){
+                  isQualityGood=false;
+              }
+          }
             qualityRangeIds.append(qualityId).append(",");
             qualityValues.append(value).append(",");
         }
@@ -479,8 +485,15 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
             QualityRangeMaster qualityRangeMaster = qualityRangeMasterRepository.findById(qualityId)
                     .orElseThrow(() -> new ResourceNotFoundException("Range not found for qualityId: " + qualityId));
 
-            if (value < qualityRangeMaster.getRangeFrom() || value > qualityRangeMaster.getRangeTo()) {
-                isQualityGood = false;
+            if(key.equalsIgnoreCase("Carbon")||key.equalsIgnoreCase("Sulphur")||key.equalsIgnoreCase("%Non-Mag")||key.equalsIgnoreCase("-1mm")) {
+                if (value < qualityRangeMaster.getRangeFrom() || value > qualityRangeMaster.getRangeTo()) {
+                    isQualityGood = false;
+                }
+            }
+            else {
+                if (value < qualityRangeMaster.getRangeFrom()){
+                    isQualityGood=false;
+                }
             }
             qualityRangeIds.append(qualityId).append(",");
             qualityValues.append(value).append(",");

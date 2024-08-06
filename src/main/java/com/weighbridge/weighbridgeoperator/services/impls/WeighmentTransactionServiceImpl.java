@@ -132,8 +132,8 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
             try {
                 System.out.println("--------------");
                 // please do uncomment 1st code below if want to use nextcloud 
-                cameraViewService.uploadImages(weighmentRequest.getTicketNo(), frontImg1, backImg2, topImg3, bottomImg4, leftImg5, rightImg6, role,"ENTRY");
-//                cameraViewService.uploadImagesUserId(weighmentRequest.getTicketNo(), frontImg1, backImg2, topImg3, bottomImg4, leftImg5, rightImg6, role,"ENTRY",userId);
+              //  cameraViewService.uploadImages(weighmentRequest.getTicketNo(), frontImg1, backImg2, topImg3, bottomImg4, leftImg5, rightImg6, role,"ENTRY");
+                cameraViewService.uploadImagesUserId(weighmentRequest.getTicketNo(), frontImg1, backImg2, topImg3, bottomImg4, leftImg5, rightImg6, role,"ENTRY",userId);
 
             }
             catch (IOException ie){
@@ -181,8 +181,8 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
             try {
                 System.out.println("--------------");
                 // please do uncomment 1st code below if want to use nextcloud 
-                cameraViewService.uploadImages(weighmentRequest.getTicketNo(), frontImg1, backImg2, topImg3, bottomImg4, leftImg5, rightImg6, role,"EXIT");
-//                cameraViewService.uploadImagesUserId(weighmentRequest.getTicketNo(), frontImg1, backImg2, topImg3, bottomImg4, leftImg5, rightImg6, role,"EXIT",userId);
+             //   cameraViewService.uploadImages(weighmentRequest.getTicketNo(), frontImg1, backImg2, topImg3, bottomImg4, leftImg5, rightImg6, role,"EXIT");
+               cameraViewService.uploadImagesUserId(weighmentRequest.getTicketNo(), frontImg1, backImg2, topImg3, bottomImg4, leftImg5, rightImg6, role,"EXIT",userId);
 
             }
             catch (IOException ie){

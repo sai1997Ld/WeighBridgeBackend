@@ -33,7 +33,7 @@ public interface ManagementDashboardService {
     List<Map<String, Object>> managementGateEntryDashboard(ManagementPayload managementRequest);
 
 
-    List<ManagementQualityDashboardResponse> getGoodOrBadQualities(ManagementPayload managementRequest, String transactionType, String qualityType);
+    List<ManagementQualityDashboardResponse> getGoodOrBadQualities(ManagementPayload managementRequest, String transactionType, String qualityType,LocalDate date);
 
     AllTransactionResponse getAllTransactionResponse(ManagementPayload managementPayload,String transactionType);
 

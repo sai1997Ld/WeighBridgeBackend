@@ -236,7 +236,7 @@ public class ManagementDashboardServiceImpl implements ManagementDashboardServic
     }
 
     @Override
-    public List<ManagementQualityDashboardResponse> getGoodOrBadQualities(ManagementPayload managementRequest, String transactionType, String qualityType) {
+    public List<ManagementQualityDashboardResponse> getGoodOrBadQualities(ManagementPayload managementRequest, String transactionType, String qualityType,LocalDate date) {
         LocalDate startDate = managementRequest.getFromDate();
         LocalDate endDate = startDate;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
@@ -248,14 +248,13 @@ public class ManagementDashboardServiceImpl implements ManagementDashboardServic
         SiteMaster siteMaster = siteMasterRepository.findBySiteNameAndSiteAddress(siteName, siteAddress);
 
         List<ManagementQualityDashboardResponse> responseList = new ArrayList<>();
-        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+      /*  for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {*/
+        if(date!=null) {
             List<QualityTransaction> qualityTransactions = qualityTransactionRepository.findByGateEntryTransactionCompanyIdAndSiteIdAndTransactionDate(companyId, siteMaster.getSiteId(), date);
             for (QualityTransaction transaction : qualityTransactions) {
-
                 ManagementQualityDashboardResponse managementQualityDashboardResponse = new ManagementQualityDashboardResponse();
                 managementQualityDashboardResponse.setTicketNo(transaction.getGateEntryTransaction().getTicketNo());
                 managementQualityDashboardResponse.setTransactionType(transaction.getGateEntryTransaction().getTransactionType());
-
                 if (transaction.getGateEntryTransaction().getTransactionType().equalsIgnoreCase("Inbound")) {
                     SupplierMaster supplierMaster = supplierMasterRepository.findBySupplierId(transaction.getGateEntryTransaction().getSupplierId());
                     managementQualityDashboardResponse.setSupplierOrCustomerName(supplierMaster.getSupplierName());
@@ -278,10 +277,42 @@ public class ManagementDashboardServiceImpl implements ManagementDashboardServic
                 // Format the date before adding to the response list
                 String formattedDate = date.format(formatter);
                 managementQualityDashboardResponse.setTransactionDate(formattedDate); // Assuming you have a setTransactionDate method in your response class
-
                 responseList.add(managementQualityDashboardResponse);
             }
         }
+        else {
+            List<QualityTransaction> qualityTransactions = qualityTransactionRepository.findByGateEntryTransactionCompanyIdAndSiteId(companyId, siteMaster.getSiteId());
+            for (QualityTransaction transaction : qualityTransactions) {
+                ManagementQualityDashboardResponse managementQualityDashboardResponse = new ManagementQualityDashboardResponse();
+                managementQualityDashboardResponse.setTicketNo(transaction.getGateEntryTransaction().getTicketNo());
+                managementQualityDashboardResponse.setTransactionType(transaction.getGateEntryTransaction().getTransactionType());
+                if (transaction.getGateEntryTransaction().getTransactionType().equalsIgnoreCase("Inbound")) {
+                    SupplierMaster supplierMaster = supplierMasterRepository.findBySupplierId(transaction.getGateEntryTransaction().getSupplierId());
+                    managementQualityDashboardResponse.setSupplierOrCustomerName(supplierMaster.getSupplierName());
+                    managementQualityDashboardResponse.setSupplierOrCustomerAddress(supplierMaster.getSupplierAddressLine1() + "," + supplierMaster.getSupplierAddressLine2());
+                } else {
+                    CustomerMaster customerMaster = customerMasterRepository.findByCustomerId(transaction.getGateEntryTransaction().getCustomerId());
+                    managementQualityDashboardResponse.setSupplierOrCustomerName(customerMaster.getCustomerName());
+                    managementQualityDashboardResponse.setSupplierOrCustomerAddress(customerMaster.getCustomerAddressLine2());
+                }
+                boolean isGoodQuality = transaction.getIsQualityGood() != null && transaction.getIsQualityGood();
+                if (isGoodQuality) {
+                    managementQualityDashboardResponse.setQualityType("Good");
+                } else {
+                    managementQualityDashboardResponse.setQualityType("Bad");
+                }
+                managementQualityDashboardResponse.setVehicleNo(vehicleMasterRepository.findVehicleNoById(transaction.getGateEntryTransaction().getVehicleId()));
+                managementQualityDashboardResponse.setProductOrMaterialType(transaction.getGateEntryTransaction().getMaterialType());
+                managementQualityDashboardResponse.setProductOrMaterialName(getMaterialOrProductName(transaction.getGateEntryTransaction()));
+                LocalDate transactionDate = transaction.getGateEntryTransaction().getTransactionDate();
+
+                // Format the date before adding to the response list
+                String formattedDate = transactionDate.format(formatter);
+                managementQualityDashboardResponse.setTransactionDate(formattedDate); // Assuming you have a setTransactionDate method in your response class
+                responseList.add(managementQualityDashboardResponse);
+            }
+        }
+       // }
         System.out.println("total responses:" + responseList.size());
         return responseList;
     }

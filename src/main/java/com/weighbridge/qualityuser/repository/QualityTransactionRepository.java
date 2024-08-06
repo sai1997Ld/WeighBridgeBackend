@@ -26,6 +26,8 @@ public interface QualityTransactionRepository extends JpaRepository<QualityTrans
     Long countInboundQuality(String transactionType,LocalDate startDate,LocalDate endDate,String siteId,String companyId);
 
 
+    @Query("SELECT qt FROM QualityTransaction qt WHERE qt.gateEntryTransaction.companyId = :companyId AND qt.gateEntryTransaction.siteId = :siteId")
+    List<QualityTransaction> findByGateEntryTransactionCompanyIdAndSiteId(String companyId, String siteId);
 }
 
 

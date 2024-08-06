@@ -88,7 +88,6 @@ public class CameraViewServiceImpl implements CameraViewService {
          
          // Check each MultipartFile before setting its path
          if (frontImg1 != null && !frontImg1.isEmpty()) {
-             cameraView.setFrontImg1(uploadAndReturnFilePath(frontImg1));
              cameraView.setFrontImg1(documentManagementService.saveDocumentString(frontImg1, companyName, siteName, role));
          }
          if (backImg2 != null && !backImg2.isEmpty()) {
