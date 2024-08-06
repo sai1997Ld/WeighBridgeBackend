@@ -56,7 +56,7 @@ public class ManagementDashboardController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/completedQualities/GoodOrBad")
+    @PostMapping("/completedQualities/GoodOrBad")
     public ResponseEntity<List<ManagementQualityDashboardResponse>> getGoodOrBadQualities(
             @RequestBody ManagementPayload managementRequest,
             @RequestParam(required = false) String transactionType,
