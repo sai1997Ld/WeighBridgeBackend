@@ -186,31 +186,28 @@ public class GateEntryTransactionSpecification implements Specification<GateEntr
 
     public Specification<GateEntryTransaction> netWeightZero() {
         return (root, query, criteriaBuilder) -> {
-            // Subquery to fetch GateEntryTransaction IDs that are referenced in WeighmentTransaction with netWeight 0.0
+            // Create a subquery to find WeighmentTransactions with netWeight as null or 0.0
             Subquery<Long> subquery = query.subquery(Long.class);
             Root<WeighmentTransaction> weighmentTransactionRoot = subquery.from(WeighmentTransaction.class);
-            subquery.select(weighmentTransactionRoot.get("gateEntryTransaction").get("id"));
-            subquery.where(
-                    criteriaBuilder.and(
-                            criteriaBuilder.equal(weighmentTransactionRoot.get("gateEntryTransaction").get("siteId"), criteria.getSiteId()),
-                            criteriaBuilder.equal(weighmentTransactionRoot.get("gateEntryTransaction").get("companyId"), criteria.getCompanyId()),
-                            criteriaBuilder.equal(weighmentTransactionRoot.get("netWeight"), 0.0)
-                    )
-            );
+            subquery.select(weighmentTransactionRoot.get("gateEntryTransaction").get("ticketNo"));
+            // Specify the conditions for the subquery
+            Predicate netWeightNullPredicate = criteriaBuilder.isNull(weighmentTransactionRoot.get("netWeight"));
+            Predicate netWeightZeroPredicate = criteriaBuilder.equal(weighmentTransactionRoot.get("netWeight"), 0.0);
+            Predicate sitePredicate = criteriaBuilder.equal(weighmentTransactionRoot.get("gateEntryTransaction").get("siteId"), criteria.getSiteId());
+            Predicate companyPredicate = criteriaBuilder.equal(weighmentTransactionRoot.get("gateEntryTransaction").get("companyId"), criteria.getCompanyId());
+            subquery.where(criteriaBuilder.and(
+                    criteriaBuilder.or(netWeightNullPredicate, netWeightZeroPredicate),
+                    sitePredicate,
+                    companyPredicate
+            ));
 
-            // Main query predicates
-            Predicate siteIdPredicate = criteriaBuilder.equal(root.get("siteId"), criteria.getSiteId());
-            Predicate companyIdPredicate = criteriaBuilder.equal(root.get("companyId"), criteria.getCompanyId());
-            Predicate notInWeighmentTransactionPredicate = criteriaBuilder.not(root.get("id").in(subquery));
-            Predicate inWeighmentTransactionWithZeroNetWeightPredicate = criteriaBuilder.in(root.get("id")).value(subquery);
+            // Specify the conditions for the main query
+            Predicate ticketNoInSubquery = root.get("ticketNo").in(subquery);
 
-            // Combine predicates using OR to include transactions not in weighmentTransaction or with zero net weight
-            return criteriaBuilder.and(
-                    siteIdPredicate,
-                    companyIdPredicate,
-                    criteriaBuilder.or(notInWeighmentTransactionPredicate, inWeighmentTransactionWithZeroNetWeightPredicate)
-            );
+            // Combine predicates
+            return ticketNoInSubquery;
         };
     }
+
 
 }

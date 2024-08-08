@@ -104,8 +104,10 @@ public class UploadController {
             @RequestParam(required = false) String companyId,
             @RequestParam(required = false) String siteId,
             @RequestParam(required = false) String truckStatus) {
-
-        Map<String, byte[]> imagesMap = cameraService.downloadImages(ticketNo, role, companyId, siteId,truckStatus);
+        //netflix cloud download method
+//        Map<String, byte[]> imagesMap = cameraService.downloadImages(ticketNo, role, companyId, siteId,truckStatus);
+        //local dms server download method
+        Map<String, byte[]> imagesMap = cameraService.downloadImagesFromServerPath(ticketNo, role, companyId, siteId,truckStatus);
 
 
         return ResponseEntity.ok()

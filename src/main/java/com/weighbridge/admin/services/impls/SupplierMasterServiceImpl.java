@@ -36,14 +36,14 @@ public class SupplierMasterServiceImpl implements SupplierMasterService {
     public SupplierMasterDto createSupplier(SupplierMasterDto supplierMasterDto,String userId) {
         try {
             // Check if the supplier contact number or email already exists
-            boolean exists = supplierMasterRepository.existsBySupplierContactNoOrSupplierEmail(
+            /*boolean exists = supplierMasterRepository.existsBySupplierContactNoOrSupplierEmail(
                     supplierMasterDto.getSupplierContactNo(),
                     supplierMasterDto.getSupplierEmail()
 
             );
             if (exists) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email Id or Contact No is already taken");
-            }
+            }*/
 
             if (supplierMasterDto == null) {
                 throw new ResourceNotFoundException("supplierMasterDto is null");

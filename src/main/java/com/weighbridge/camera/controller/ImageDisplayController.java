@@ -13,7 +13,16 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/api/v1/camera")
+/**
+ * Controller for upload image from Client Jar File
+ *
+ */
+
 public class ImageDisplayController {
+
+//    java -jar target/your-application.jar --company.name=YourCompanyName --site.name=YourSiteName
+
+
 
     private static final String UPLOAD_DIR = "E:/Camera/";
 

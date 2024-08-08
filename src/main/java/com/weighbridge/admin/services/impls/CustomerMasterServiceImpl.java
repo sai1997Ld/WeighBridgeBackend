@@ -2,6 +2,7 @@ package com.weighbridge.admin.services.impls;
 
 import com.weighbridge.admin.dtos.CustomerMasterDto;
 import com.weighbridge.admin.entities.CustomerMaster;
+import com.weighbridge.admin.exceptions.ResourceNotFoundException;
 import com.weighbridge.admin.exceptions.SessionExpiredException;
 import com.weighbridge.admin.payloads.CustomerRequest;
 import com.weighbridge.admin.repsitories.CustomerMasterRepository;
@@ -32,13 +33,17 @@ public class CustomerMasterServiceImpl implements CustomerMasterService {
 
     @Override
     public String createCustomer(CustomerMasterDto customerMasterDto,String userId) {
-        boolean exists = customerMasterRepository.existsByCustomerContactNoOrCustomerEmail(
+        /*boolean exists = customerMasterRepository.existsByCustomerContactNoOrCustomerEmail(
                 customerMasterDto.getCustomerContactNo(),
                 customerMasterDto.getCustomerEmail());
         if (exists) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email Id or Contact No is already taken");
-        }
+        }*/
 
+        if(customerMasterDto==null){
+            throw new ResourceNotFoundException("customerMasterDto is null");
+
+        }
         CustomerMaster customerMaster = new CustomerMaster();
         customerMaster.setCustomerName(customerMasterDto.getCustomerName());
         customerMaster.setCustomerEmail(customerMasterDto.getCustomerEmail());

@@ -32,7 +32,7 @@ public class CustomerMaster {
     private String customerName;
 
 
-    @Email(message = "Invalid Email format")
+
     @Column(name = "customer_email")
     private String customerEmail;
 

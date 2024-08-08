@@ -329,8 +329,8 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
             vehicleTransactionStatus.setTicketNo(ticketNo);
             vehicleTransactionStatus.setStatusCode("GNT");
             vehicleTransactionStatusRepository.save(vehicleTransactionStatus);
-            cameraViewService.uploadImages(ticketNo,frontImg1,backImg2,topImg3,bottomImg4,leftImg5,rightImg6,role,"ENTRY"); // for nextCloud
-//            cameraViewService.uploadImagesUserId(ticketNo, frontImg1, backImg2, topImg3, bottomImg4, leftImg5, rightImg6, role,"ENTRY",userId); // for server Path
+//            cameraViewService.uploadImages(ticketNo,frontImg1,backImg2,topImg3,bottomImg4,leftImg5,rightImg6,role,"ENTRY"); // for nextCloud
+            cameraViewService.uploadImagesUserId(ticketNo, frontImg1, backImg2, topImg3, bottomImg4, leftImg5, rightImg6, role,"ENTRY",userId); // for server Path
 
             // Log transaction
             TransactionLog transactionLog = new TransactionLog();

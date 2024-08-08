@@ -28,6 +28,15 @@ public class WebSocketConfig implements WebSocketConfigurer {
                 "rtsp://admin:Techn0l0gy@172.16.20.90:554/cam/realmonitor?channel=1&subtype=0"
                 // Add more RTSP URLs as needed
         };
+        //below is vikram camera urls
+        /*String[][] rtspUrls = {
+            {"gate", "1", "rtsp://admin:vikram@123@192.168.1.223:554/cam/realmonitor?channel=1&subtype=0"},
+            {"gate", "2", "rtsp://admin:vikram@123@192.168.1.227:554/cam/realmonitor?channel=1&subtype=0"},
+            {"gate", "3", "rtsp://admin:admin123@192.168.1.202:554/cam/realmonitor?channel=1&subtype=0"},
+            {"weigh", "1", "rtsp://admin:admin123@192.168.1.231:554/cam/realmonitor?channel=1&subtype=0"},
+            {"weigh", "2", "rtsp://admin:vikram@123@192.168.1.222:554/cam/realmonitor?channel=1&subtype=0"}
+        };
+        */
         for (int i = 0; i < rtspUrls.length; i++) {
             registry.addHandler(new FrameWebSocketHandler(frameCaptureService, rtspUrls[i]), "/ws/frame" + (i + 1))
                     .setAllowedOrigins("*");
