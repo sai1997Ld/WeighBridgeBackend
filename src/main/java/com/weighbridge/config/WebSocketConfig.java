@@ -21,11 +21,11 @@ public class WebSocketConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         // Register handlers for RTSP streams
         String[] rtspUrls = {
-                "rtsp://admin:vikram@123@192.168.1.223:554/cam/realmonitor?channel=1&subtype=0",
-                "rtsp://admin:vikram@123@192.168.1.227:554/cam/realmonitor?channel=1&subtype=0",
-                "rtsp://admin:admin123@192.168.1.202:554/cam/realmonitor?channel=1&subtype=0",
-                "rtsp://admin:admin123@192.168.1.231:554/cam/realmonitor?channel=1&subtype=0",
-                "rtsp://admin:vikram@123@192.168.1.222:554/cam/realmonitor?channel=1&subtype=0"
+                "rtsp://admin:Techn0l0gy@172.16.20.90:554/cam/realmonitor?channel=1&subtype=0",
+                "rtsp://admin:Techn0l0gy@172.16.20.90:554/cam/realmonitor?channel=1&subtype=0",
+                "rtsp://admin:Techn0l0gy@172.16.20.90:554/cam/realmonitor?channel=1&subtype=0",
+                "rtsp://admin:Techn0l0gy@172.16.20.90:554/cam/realmonitor?channel=1&subtype=0",
+                "rtsp://admin:Techn0l0gy@172.16.20.90:554/cam/realmonitor?channel=1&subtype=0"
                 // Add more RTSP URLs as needed
         };
         for (int i = 0; i < rtspUrls.length; i++) {

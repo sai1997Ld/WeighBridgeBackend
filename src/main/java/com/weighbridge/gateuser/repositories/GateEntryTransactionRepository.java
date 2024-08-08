@@ -36,7 +36,7 @@ public interface GateEntryTransactionRepository extends JpaRepository<GateEntryT
 
 
     // Modified method to find by siteId, companyId, and transactionDate within the specified range
-    List<GateEntryTransaction> findBySiteIdAndCompanyIdAndTransactionDateBetweenOrderByTransactionDateDesc(String siteId, String companyId, LocalDate startDate, LocalDate endDate);
+    List<GateEntryTransaction> findBySiteIdAndCompanyIdAndVehicleOutBetweenOrderByVehicleOutDesc(String siteId, String companyId, LocalDateTime startDate, LocalDateTime endDate);
 
     GateEntryTransaction findByTicketNo(Integer ticketNo);
 
@@ -103,6 +103,5 @@ public interface GateEntryTransactionRepository extends JpaRepository<GateEntryT
 
 
     GateEntryTransaction findByTpNo(String tpNo);
-    List<GateEntryTransaction> findBySiteIdAndCompanyIdAndVehicleOutBetweenOrderByVehicleOutDesc(String siteId, String companyId, LocalDateTime startDate, LocalDateTime endDate);
 }
 
