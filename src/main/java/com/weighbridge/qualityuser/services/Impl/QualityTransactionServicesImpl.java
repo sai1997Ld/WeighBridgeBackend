@@ -26,6 +26,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.datetime.DateFormatter;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -674,15 +675,50 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
         else{
             throw new com.weighbridge.admin.exceptions.ResourceNotFoundException("User Id or Company Site Not Given");
         }
+       DateTimeFormatter dateTimeFormatter=DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        DateTimeFormatter dateTimeFormatter1=DateTimeFormatter.ofPattern("dd-MM-yyyy");
         // Retrieve all transactions for the user's site and company
-        List<GateEntryTransaction> inboundTransaction = gateEntryTransactionRepository.findByTransactionTypeAndSiteIdAndCompanyIdOrderByTransactionDate("Inbound", userSite, userCompany);
-        return processTransaction(inboundTransaction);
+     //   List<GateEntryTransaction> inboundTransaction = gateEntryTransactionRepository.findByTransactionTypeAndSiteIdAndCompanyIdOrderByTransactionDate("Inbound", userSite, userCompany);
+        List<QualityTransaction> inboundTransaction = qualityTransactionRepository.findByGateEntryTransaction_TransactionTypeAndGateEntryTransaction_CompanyIdAndGateEntryTransaction_SiteId("Inbound",userCompany,userSite);
+        if(inboundTransaction!=null) {
+            List<QualityDashboardResponse> qualityDashboardResponses=new ArrayList<>();
+            for (QualityTransaction qualityTransaction : inboundTransaction) {
+                QualityDashboardResponse qualityDashboardResponse=new QualityDashboardResponse();
+                qualityDashboardResponse.setTicketNo(qualityTransaction.getGateEntryTransaction().getTicketNo());
+                qualityDashboardResponse.setTpNo(qualityTransaction.getGateEntryTransaction().getTpNo()!=null?qualityTransaction.getGateEntryTransaction().getTpNo():"");
+                qualityDashboardResponse.setPoNo(qualityTransaction.getGateEntryTransaction().getPoNo()!=null?qualityTransaction.getGateEntryTransaction().getPoNo():"");
+                String transporterName = transporterMasterRepository.findTransporterNameByTransporterId(qualityTransaction.getGateEntryTransaction().getTransporterId());
+                qualityDashboardResponse.setTransporterName(transporterName!=null?transporterName:"");
+                String vehicleNo = vehicleMasterRepository.findVehicleNoById(qualityTransaction.getGateEntryTransaction().getVehicleId());
+                qualityDashboardResponse.setVehicleNo(vehicleNo!=null?vehicleNo:"");
+                qualityDashboardResponse.setTransactionType("Inbound");
+                qualityDashboardResponse.setIn(qualityTransaction.getGateEntryTransaction().getVehicleIn()!=null?qualityTransaction.getGateEntryTransaction().getVehicleIn().format(dateTimeFormatter):"");
+                qualityDashboardResponse.setOut(qualityTransaction.getGateEntryTransaction().getVehicleOut()!=null?qualityTransaction.getGateEntryTransaction().getVehicleOut().format(dateTimeFormatter):"");
+                qualityDashboardResponse.setDate(qualityTransaction.getGateEntryTransaction().getTransactionDate()!=null?qualityTransaction.getGateEntryTransaction().getTransactionDate().format(dateTimeFormatter1):"");
+                qualityDashboardResponse.setChallanNo(qualityTransaction.getGateEntryTransaction().getChallanNo()!=null?qualityTransaction.getGateEntryTransaction().getChallanNo():"");
+                String materialNameByMaterialId = materialMasterRepository.findMaterialNameByMaterialId(qualityTransaction.getGateEntryTransaction().getMaterialId());
+                qualityDashboardResponse.setMaterialName(materialNameByMaterialId!=null?materialNameByMaterialId:"");
+                qualityDashboardResponse.setMaterialType(qualityTransaction.getGateEntryTransaction().getMaterialType()!=null?qualityTransaction.getGateEntryTransaction().getMaterialType():"");
+                qualityDashboardResponse.setIsQualityGood(qualityTransaction.getIsQualityGood());
+                SupplierMaster supplierMaster = supplierMasterRepository.findById(qualityTransaction.getGateEntryTransaction().getSupplierId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Supplier", "id", String.valueOf(qualityTransaction.getGateEntryTransaction().getSupplierId())));
+                qualityDashboardResponse.setSupplierOrCustomerName(supplierMaster!=null?supplierMaster.getSupplierName():"");
+                qualityDashboardResponse.setSupplierOrCustomerAddress(supplierMaster!=null?supplierMaster.getSupplierAddressLine1() + "," + supplierMaster.getSupplierAddressLine2():"");
+                qualityDashboardResponses.add(qualityDashboardResponse);
+            }
+            return qualityDashboardResponses;
+        }
+        else{
+            return null;
+        }
     }
 
     @Override
     public List<QualityDashboardResponse> getOutboundTransaction(String userId,String companyName,String siteName) {
         String userSite = null;
         String userCompany = null;
+        DateTimeFormatter dateTimeFormatter=DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        DateTimeFormatter dateTimeFormatter1=DateTimeFormatter.ofPattern("dd-MM-yyyy");
         if(StringUtils.hasLength(userId)) {
             UserMaster userMaster = Optional.ofNullable(userMasterRepository.findByUserId(userId))
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Session timed out, Login again!"));
@@ -702,8 +738,39 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
         }
 
         // Retrieve all transactions for the user's site and company, ordered by transaction date in descending order
-        List<GateEntryTransaction> outboundTransaction = gateEntryTransactionRepository.findByTransactionTypeAndSiteIdAndCompanyIdOrderByTransactionDate("Outbound", userSite, userCompany);
-        return processTransaction(outboundTransaction);
+        List<QualityTransaction> inboundTransaction = qualityTransactionRepository.findByGateEntryTransaction_TransactionTypeAndGateEntryTransaction_CompanyIdAndGateEntryTransaction_SiteId("Outbound",userCompany,userSite);
+        if(inboundTransaction!=null) {
+            List<QualityDashboardResponse> qualityDashboardResponses=new ArrayList<>();
+            for (QualityTransaction qualityTransaction : inboundTransaction) {
+                QualityDashboardResponse qualityDashboardResponse=new QualityDashboardResponse();
+                qualityDashboardResponse.setTicketNo(qualityTransaction.getGateEntryTransaction().getTicketNo());
+                qualityDashboardResponse.setTpNo(qualityTransaction.getGateEntryTransaction().getTpNo()!=null?qualityTransaction.getGateEntryTransaction().getTpNo():"");
+                qualityDashboardResponse.setPoNo(qualityTransaction.getGateEntryTransaction().getPoNo()!=null?qualityTransaction.getGateEntryTransaction().getPoNo():"");
+                String transporterName = transporterMasterRepository.findTransporterNameByTransporterId(qualityTransaction.getGateEntryTransaction().getTransporterId());
+                qualityDashboardResponse.setTransporterName(transporterName!=null?transporterName:"");
+                String vehicleNo = vehicleMasterRepository.findVehicleNoById(qualityTransaction.getGateEntryTransaction().getVehicleId());
+                qualityDashboardResponse.setVehicleNo(vehicleNo!=null?vehicleNo:"");
+                qualityDashboardResponse.setTransactionType("Outbound");
+                qualityDashboardResponse.setIn(qualityTransaction.getGateEntryTransaction().getVehicleIn()!=null?qualityTransaction.getGateEntryTransaction().getVehicleIn().format(dateTimeFormatter):"");
+                qualityDashboardResponse.setOut(qualityTransaction.getGateEntryTransaction().getVehicleOut()!=null?qualityTransaction.getGateEntryTransaction().getVehicleOut().format(dateTimeFormatter):"");
+                qualityDashboardResponse.setDate(qualityTransaction.getGateEntryTransaction().getTransactionDate()!=null?qualityTransaction.getGateEntryTransaction().getTransactionDate().format(dateTimeFormatter1):"");
+                qualityDashboardResponse.setChallanNo(qualityTransaction.getGateEntryTransaction().getChallanNo()!=null?qualityTransaction.getGateEntryTransaction().getChallanNo():"");
+                String materialNameByMaterialId = productMasterRepository.findProductNameByProductId(qualityTransaction.getGateEntryTransaction().getMaterialId());
+                qualityDashboardResponse.setMaterialName(materialNameByMaterialId!=null?materialNameByMaterialId:"");
+                qualityDashboardResponse.setMaterialType(qualityTransaction.getGateEntryTransaction().getMaterialType()!=null?qualityTransaction.getGateEntryTransaction().getMaterialType():"");
+                qualityDashboardResponse.setIsQualityGood(qualityTransaction.getIsQualityGood());
+                CustomerMaster customerMaster = customerMasterRepository.findById(qualityTransaction.getGateEntryTransaction().getCustomerId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", String.valueOf(qualityTransaction.getGateEntryTransaction().getCustomerId())));
+                qualityDashboardResponse.setSupplierOrCustomerName(customerMaster!=null?customerMaster.getCustomerName():"");
+                qualityDashboardResponse.setSupplierOrCustomerAddress(customerMaster!=null?customerMaster.getCustomerAddressLine1() + "," + customerMaster.getCustomerAddressLine2():"");
+                qualityDashboardResponses.add(qualityDashboardResponse);
+            }
+            return qualityDashboardResponses;
+        }
+        else{
+            return null;
+        }
+
     }
 
     @Override
@@ -803,6 +870,5 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
 
         return qualityDashboardResponses;
     }
-
 
 }

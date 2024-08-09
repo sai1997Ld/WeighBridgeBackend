@@ -28,6 +28,13 @@ public interface QualityTransactionRepository extends JpaRepository<QualityTrans
 
     @Query("SELECT qt FROM QualityTransaction qt WHERE qt.gateEntryTransaction.companyId = :companyId AND qt.gateEntryTransaction.siteId = :siteId")
     List<QualityTransaction> findByGateEntryTransactionCompanyIdAndSiteId(String companyId, String siteId);
+
+    List<QualityTransaction> findByGateEntryTransaction_TransactionTypeAndGateEntryTransaction_CompanyIdAndGateEntryTransaction_SiteId(
+            String transactionType, String companyId, String siteId);
+
+    List<QualityTransaction> findByGateEntryTransactionTransactionType(String inbound);
+
+   // List<QualityTransaction> findByGateEntryTransactionTransactionTypeAndCompanyIdAndSiteId(String inbound, String userSite, String userCompany);
 }
 
 
