@@ -457,7 +457,6 @@ public class ManagementDashboardServiceImpl implements ManagementDashboardServic
         return responseList;
     }
     @Override
-
     public ManagementGateEntryList gateEntryList(Integer ticketNo, String vehicleNo, LocalDate date, String supplierName, String transactionType, Pageable pageable, String vehicleStatus, String company, String site,String materialName) {
         // Fetch company ID
         String companyId = companyMasterRepository.findCompanyIdByCompanyName(company);

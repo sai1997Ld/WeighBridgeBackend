@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -402,7 +403,7 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
         QualityTransaction qualityTransaction = new QualityTransaction();
         StringBuilder qualityRangeIds = new StringBuilder();
         StringBuilder qualityValues = new StringBuilder();
-        boolean isQualityGood = true;
+        AtomicBoolean isQualityGood = new AtomicBoolean(true); // Initialize as true
 
         if (gateEntryTransaction.getTransactionType().equalsIgnoreCase("Inbound")) {
             handleInboundTransaction(gateEntryTransaction, transactionRequest, qualityRangeIds, qualityValues, isQualityGood);
@@ -415,9 +416,8 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
             qualityTransaction.setGateEntryTransaction(gateEntryTransaction);
             qualityTransaction.setQualityRangeId(qualityRangeIds.toString().replaceAll(",$", "").trim());
             qualityTransaction.setQualityValues(qualityValues.toString().replaceAll(",$", "").trim());
-            qualityTransaction.setIsQualityGood(isQualityGood);
+            qualityTransaction.setIsQualityGood(isQualityGood.get());
             qualityTransactionRepository.save(qualityTransaction);
-
             return logTransactionAndStatus(ticketNo, userId);
         } else {
             // Handle the case where no valid quality data was found
@@ -425,10 +425,11 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
         }
     }
 
-    private void handleInboundTransaction(GateEntryTransaction gateEntryTransaction, Map<String, Object> transactionRequest, StringBuilder qualityRangeIds, StringBuilder qualityValues, boolean isQualityGood) {
+    private void handleInboundTransaction(GateEntryTransaction gateEntryTransaction, Map<String, Object> transactionRequest, StringBuilder qualityRangeIds, StringBuilder qualityValues,AtomicBoolean isQualityGood) {
         String materialName = materialMasterRepository.findMaterialNameByMaterialId(gateEntryTransaction.getMaterialId());
         SupplierMaster supplierMaster = supplierMasterRepository.findBySupplierId(gateEntryTransaction.getSupplierId());
         String supplierAddress = supplierMaster.getSupplierAddressLine1() + "," + supplierMaster.getSupplierAddressLine2();
+        //AtomicBoolean isQualityGood = new AtomicBoolean(true); // Initialize as true
 
         for (Map.Entry<String, Object> entry : transactionRequest.entrySet()) {
             String key = entry.getKey();
@@ -450,20 +451,21 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
                     .orElseThrow(() -> new ResourceNotFoundException("Range not found for qualityId: " + qualityId));
           if(key.equalsIgnoreCase("Carbon")||key.equalsIgnoreCase("Sulphur")||key.equalsIgnoreCase("%Non-Mag")||key.equalsIgnoreCase("-1mm")) {
               if (value < qualityRangeMaster.getRangeFrom() || value > qualityRangeMaster.getRangeTo()) {
-                  isQualityGood = false;
+                  isQualityGood.set(false);
               }
           }
           else{
               if(value < qualityRangeMaster.getRangeFrom()){
-                  isQualityGood=false;
+                  isQualityGood.set(false);
               }
           }
+            System.out.println(isQualityGood);
             qualityRangeIds.append(qualityId).append(",");
             qualityValues.append(value).append(",");
         }
     }
 
-    private void handleOutboundTransaction(GateEntryTransaction gateEntryTransaction, Map<String, Object> transactionRequest, StringBuilder qualityRangeIds, StringBuilder qualityValues, boolean isQualityGood) {
+    private void handleOutboundTransaction(GateEntryTransaction gateEntryTransaction, Map<String, Object> transactionRequest, StringBuilder qualityRangeIds, StringBuilder qualityValues, AtomicBoolean isQualityGood) {
         String productName = productMasterRepository.findProductNameByProductId(gateEntryTransaction.getMaterialId());
 
         for (Map.Entry<String,Object> entry : transactionRequest.entrySet()) {
@@ -488,12 +490,12 @@ public class QualityTransactionServicesImpl implements QualityTransactionService
 
             if(key.equalsIgnoreCase("Carbon")||key.equalsIgnoreCase("Sulphur")||key.equalsIgnoreCase("%Non-Mag")||key.equalsIgnoreCase("-1mm")) {
                 if (value < qualityRangeMaster.getRangeFrom() || value > qualityRangeMaster.getRangeTo()) {
-                    isQualityGood = false;
+                    isQualityGood.set(false);
                 }
             }
             else {
                 if (value < qualityRangeMaster.getRangeFrom()){
-                    isQualityGood=false;
+                    isQualityGood.set(false);
                 }
             }
             qualityRangeIds.append(qualityId).append(",");
