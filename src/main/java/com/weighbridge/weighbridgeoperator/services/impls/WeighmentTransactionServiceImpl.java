@@ -538,18 +538,20 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
         SalesOrder bySaleOrderNo = salesOrderRespository.findBySaleOrderNo(bySalePassNo.getPurchaseSale().getSaleOrderNo());
         if(gateEntryTransaction.getMaterialType()!=null&&gateEntryTransaction.getMaterialType().equalsIgnoreCase("lumps")){
             bySalePassNo.setExtraSalePassNo(bySalePassNo.getExtraSalePassNo()+"_"+Math.abs(bySaleOrderNo.getLumps()-netWeight));
+            Double lumps=bySaleOrderNo.getLumps();
             bySaleOrderNo.setLumps(bySaleOrderNo.getLumps()-netWeight);
-            bySaleOrderNo.setBalanceQuantity(bySaleOrderNo.getLumps()+bySaleOrderNo.getFines());
-            bySaleOrderNo.setProgressiveQuantity(bySaleOrderNo.getOrderedQuantity()-bySaleOrderNo.getBalanceQuantity());
+            bySaleOrderNo.setBalanceQuantity(bySaleOrderNo.getBalanceQuantity()-lumps);
+            bySaleOrderNo.setProgressiveQuantity(bySaleOrderNo.getProgressiveQuantity()+lumps);
             if(bySaleOrderNo.getBalanceQuantity()<=0){
                 bySaleOrderNo.setStatus(false);
             }
         }
         else if(gateEntryTransaction.getMaterialType()!=null&&gateEntryTransaction.getMaterialType().equalsIgnoreCase("fines")){
             bySalePassNo.setExtraSalePassNo(bySalePassNo.getExtraSalePassNo()+"_"+Math.abs(bySaleOrderNo.getFines()-netWeight));
+            Double fines=bySaleOrderNo.getFines();
             bySaleOrderNo.setFines(bySaleOrderNo.getFines()-netWeight);
-            bySaleOrderNo.setBalanceQuantity(bySaleOrderNo.getLumps()+bySaleOrderNo.getFines());
-            bySaleOrderNo.setProgressiveQuantity(bySaleOrderNo.getOrderedQuantity()-bySaleOrderNo.getBalanceQuantity());
+            bySaleOrderNo.setBalanceQuantity(bySaleOrderNo.getBalanceQuantity()-fines);
+            bySaleOrderNo.setProgressiveQuantity(bySaleOrderNo.getProgressiveQuantity()+fines);
             if(bySaleOrderNo.getBalanceQuantity()<=0){
                 bySaleOrderNo.setStatus(false);
             }

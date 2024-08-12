@@ -71,11 +71,16 @@ public class SalesProcessServiceImpl implements SalesProcessService {
         process.setPurchaseSale(bySaleOrderNo);
         process.setTransporterName(salesProcessRequest.getTransporterName());
         process.setSalePassNo(generateSalePassNo(salesProcessRequest.getSaleOrderNo()));
+        String extraSalePassNo = process.getExtraSalePassNo();
         if(salesCheck!=null) {
-            System.out.println("hi");
             if (salesCheck.equalsIgnoreCase("newSaleOrder")) {
-                System.out.println("hello");
-                process.setExtraSalePassNo(process.getPurchaseSale().getSaleOrderNo() + "_" + process.getSalePassNo());
+                if(extraSalePassNo==null) {
+                    System.out.println("hello");
+                    process.setExtraSalePassNo(process.getPurchaseSale().getSaleOrderNo() + "_" + process.getSalePassNo());
+                }
+                else {
+                    process.setExtraSalePassNo(extraSalePassNo+","+process.getPurchaseSale().getSaleOrderNo() +"_"+ process.getSalePassNo());
+                }
             }
         }
         //Storing that saleOrder for which it will be deducted
@@ -146,10 +151,8 @@ public class SalesProcessServiceImpl implements SalesProcessService {
 
     private String generateSalePassNo(String saleOrderNo) {
         Long count = salesProcessRepository.countByPurchaseSaleSaleOrderNo(saleOrderNo);
-
         // Increment the count for the current purchase order and format it as a 2-digit string
         String incrementedNumber = String.format("%02d", count + 1);
-
         String salePassNo = saleOrderNo + "-" + incrementedNumber;
         return salePassNo;
     }
