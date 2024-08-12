@@ -64,7 +64,7 @@ public class ImageDisplayController {
     }
 
     @GetMapping("/latest-images")
-    public ResponseEntity<Map<String, String>> getLatestImage(@RequestParam("company") String userId,
+    public ResponseEntity<Map<String, String>> getLatestImage(@RequestParam("userId") String userId,
                                                               @RequestParam("location") String location) {
 
         System.out.println("-----------");
