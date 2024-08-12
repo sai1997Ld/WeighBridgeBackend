@@ -68,16 +68,16 @@ public class ManagementDashboardController {
     @PostMapping("/goodQualities")
     public ResponseEntity<List<ManagementQualityDashboardResponse>> getGoodQualities(
             @RequestBody ManagementPayload managementRequest,
-            @RequestParam(required = false) String transactionType){
-        List<ManagementQualityDashboardResponse> responses=managementDashboardService.getGoodQualities(managementRequest,transactionType);
+            @RequestParam(required = false) String transactionType,@RequestParam(required = false)LocalDate date){
+        List<ManagementQualityDashboardResponse> responses=managementDashboardService.getGoodQualities(managementRequest,transactionType,date);
         return ResponseEntity.ok(responses);
     }
 
     @PostMapping("/badQualities")
     public ResponseEntity<List<ManagementQualityDashboardResponse>> getBadQualities(
             @RequestBody ManagementPayload managementRequest,
-            @RequestParam(required = false) String transactionType){
-        List<ManagementQualityDashboardResponse> responses=managementDashboardService.getBadQualities(managementRequest,transactionType);
+            @RequestParam(required = false) String transactionType,@RequestParam(required = false)LocalDate date){
+        List<ManagementQualityDashboardResponse> responses=managementDashboardService.getBadQualities(managementRequest,transactionType,date);
         return ResponseEntity.ok(responses);
     }
     @PostMapping("/moisture-percentage")

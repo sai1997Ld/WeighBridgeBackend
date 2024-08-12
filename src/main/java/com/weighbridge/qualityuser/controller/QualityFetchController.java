@@ -38,13 +38,14 @@ public class QualityFetchController {
         return ResponseEntity.ok(materialNames);
     }
 
-    @GetMapping("fetch-InboundTransaction")
+    @GetMapping("/fetch-InboundTransaction/getquality")
     public ResponseEntity<List<QualityDashboardResponse>> getInboundTransaction(@RequestParam(required = false) String userId,@RequestParam(required = false) String companyName,@RequestParam(required = false) String siteName) {
+        System.out.println("------+++++");
         List<QualityDashboardResponse> responses = qualityTransactionService.getInboundTransaction(userId,companyName,siteName);
         return ResponseEntity.ok(responses);
     }
 
-    @GetMapping("fetch-OutboundTransaction")
+    @GetMapping("/fetch-OutboundTransaction")
     public ResponseEntity<List<QualityDashboardResponse>> getOutboundTransaction(@RequestParam(required = false) String userId,@RequestParam(required = false) String companyName,@RequestParam(required = false) String siteName) {
         List<QualityDashboardResponse> responses = qualityTransactionService.getOutboundTransaction(userId,companyName,siteName);
         return ResponseEntity.ok(responses);

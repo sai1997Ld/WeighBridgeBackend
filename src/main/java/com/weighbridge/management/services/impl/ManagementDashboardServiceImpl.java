@@ -57,6 +57,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -320,13 +321,13 @@ public class ManagementDashboardServiceImpl implements ManagementDashboardServic
 
 
     @Override
-    public List<ManagementQualityDashboardResponse> getGoodQualities(ManagementPayload managementRequest, String transactionType) {
-        return getQualitiesByType(managementRequest, transactionType, true);
+    public List<ManagementQualityDashboardResponse> getGoodQualities(ManagementPayload managementRequest, String transactionType,LocalDate date) {
+        return getQualitiesByType(managementRequest, transactionType, true,date);
     }
 
     @Override
-    public List<ManagementQualityDashboardResponse> getBadQualities(ManagementPayload managementRequest, String transactionType) {
-        return getQualitiesByType(managementRequest, transactionType, false);
+    public List<ManagementQualityDashboardResponse> getBadQualities(ManagementPayload managementRequest, String transactionType,LocalDate date) {
+        return getQualitiesByType(managementRequest, transactionType, false,date);
     }
 
     @Override
@@ -374,7 +375,7 @@ public class ManagementDashboardServiceImpl implements ManagementDashboardServic
         return managementQualityDashboardResponse;
     }
 
-    private List<ManagementQualityDashboardResponse> getQualitiesByType(ManagementPayload managementRequest, String transactionType, boolean isGoodQuality) {
+    private List<ManagementQualityDashboardResponse> getQualitiesByType(ManagementPayload managementRequest, String transactionType, boolean isGoodQuality,LocalDate date) {
         LocalDate startDate = managementRequest.getFromDate();
         LocalDate endDate = startDate;
 
@@ -384,9 +385,11 @@ public class ManagementDashboardServiceImpl implements ManagementDashboardServic
         String siteName = siteInfoParts[0].trim();
         String siteAddress = siteInfoParts.length == 2 ? siteInfoParts[1].trim() : "";
         SiteMaster siteMaster = siteMasterRepository.findBySiteNameAndSiteAddress(siteName, siteAddress);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
         List<ManagementQualityDashboardResponse> responseList = new ArrayList<>();
-        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+      //  for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+        if(date!=null) {
             List<QualityTransaction> qualityTransactions = qualityTransactionRepository.findByGateEntryTransactionCompanyIdAndSiteIdAndTransactionDate(companyId, siteMaster.getSiteId(), date);
             for (QualityTransaction transaction : qualityTransactions) {
                 // Filtering based on quality type
@@ -413,15 +416,47 @@ public class ManagementDashboardServiceImpl implements ManagementDashboardServic
                     managementQualityDashboardResponse.setProductOrMaterialType(transaction.getGateEntryTransaction().getMaterialType());
                     managementQualityDashboardResponse.setProductOrMaterialName(getMaterialOrProductName(transaction.getGateEntryTransaction()));
                     managementQualityDashboardResponse.setQualityType(isGoodQuality ? "Good" : "Bad");
-
+                 //  managementQualityDashboardResponse.setTransactionDate(transaction.getGateEntryTransaction().getTransactionDate()!=null?transaction.getGateEntryTransaction().getTransactionDate().format(formatter):"");
                     responseList.add(managementQualityDashboardResponse);
                 }
             }
         }
+
+        else{
+            List<QualityTransaction> qualityTransactions = qualityTransactionRepository.findByGateEntryTransactionCompanyIdAndSiteId(companyId, siteMaster.getSiteId());
+            for (QualityTransaction transaction : qualityTransactions) {
+                // Filtering based on quality type
+                boolean isTransactionGoodQuality = transaction.getIsQualityGood() != null && transaction.getIsQualityGood();
+                if (isTransactionGoodQuality == isGoodQuality) {
+                    ManagementQualityDashboardResponse managementQualityDashboardResponse = new ManagementQualityDashboardResponse();
+                    managementQualityDashboardResponse.setTicketNo(transaction.getGateEntryTransaction().getTicketNo());
+                    managementQualityDashboardResponse.setTransactionType(transaction.getGateEntryTransaction().getTransactionType());
+                    if (transaction.getGateEntryTransaction().getTransactionType().equalsIgnoreCase("Inbound")) {
+                        SupplierMaster supplierMaster = supplierMasterRepository.findBySupplierId(transaction.getGateEntryTransaction().getSupplierId());
+                        if (supplierMaster != null) {
+                            managementQualityDashboardResponse.setSupplierOrCustomerName(supplierMaster.getSupplierName());
+                            managementQualityDashboardResponse.setSupplierOrCustomerAddress(supplierMaster.getSupplierAddressLine1() + "," + supplierMaster.getSupplierAddressLine2());
+                        }
+                    } else {
+                        CustomerMaster customerMaster = customerMasterRepository.findByCustomerId(transaction.getGateEntryTransaction().getCustomerId());
+                        if (customerMaster != null) {
+                            managementQualityDashboardResponse.setSupplierOrCustomerName(customerMaster.getCustomerName());
+                            managementQualityDashboardResponse.setSupplierOrCustomerAddress(customerMaster.getCustomerAddressLine2());
+                        }
+                    }
+                    managementQualityDashboardResponse.setVehicleNo(vehicleMasterRepository.findVehicleNoById(transaction.getGateEntryTransaction().getVehicleId()));
+                    managementQualityDashboardResponse.setProductOrMaterialType(transaction.getGateEntryTransaction().getMaterialType());
+                    managementQualityDashboardResponse.setProductOrMaterialName(getMaterialOrProductName(transaction.getGateEntryTransaction()));
+                    managementQualityDashboardResponse.setQualityType(isGoodQuality ? "Good" : "Bad");
+                   // managementQualityDashboardResponse.setTransactionDate(transaction.getGateEntryTransaction().getTransactionDate()!=null?transaction.getGateEntryTransaction().getTransactionDate().format(formatter):"");
+                    responseList.add(managementQualityDashboardResponse);
+                }
+            }
+        }
+      //  }
         return responseList;
     }
     @Override
-
     public ManagementGateEntryList gateEntryList(Integer ticketNo, String vehicleNo, LocalDate date, String supplierName, String transactionType, Pageable pageable, String vehicleStatus, String company, String site,String materialName) {
         // Fetch company ID
         String companyId = companyMasterRepository.findCompanyIdByCompanyName(company);
