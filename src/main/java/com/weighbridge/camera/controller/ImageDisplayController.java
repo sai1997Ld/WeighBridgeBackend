@@ -1,5 +1,9 @@
 package com.weighbridge.camera.controller;
 
+import com.weighbridge.admin.entities.UserMaster;
+import com.weighbridge.admin.exceptions.ResourceNotFoundException;
+import com.weighbridge.admin.repsitories.UserMasterRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -22,8 +26,8 @@ public class ImageDisplayController {
 
 //    java -jar target/your-application.jar --company.name=YourCompanyName --site.name=YourSiteName
 
-
-
+    @Autowired
+    private UserMasterRepository userMasterRepository;
     private static final String UPLOAD_DIR = "E:/Camera/";
 
     @PostMapping("/upload/image")
@@ -60,9 +64,19 @@ public class ImageDisplayController {
     }
 
     @GetMapping("/latest-images")
-    public ResponseEntity<Map<String, String>> getLatestImage(@RequestParam("company") String company,
-                                                              @RequestParam("site") String site,
+    public ResponseEntity<Map<String, String>> getLatestImage(@RequestParam("company") String userId,
                                                               @RequestParam("location") String location) {
+
+        System.out.println("-----------");
+        if(userId==null){
+            throw new ResourceNotFoundException("User id is null: "+userId);
+        }
+        UserMaster user = userMasterRepository.findByUserId(userId);
+        if(user==null){
+            throw new ResourceNotFoundException("User Id is not found: "+userId);
+        }
+        String company = user.getCompany().getCompanyId();
+        String site = user.getSite().getSiteId();
         String key = String.format("%s_%s_%s", company, site, location);
         String filename = String.format("%s_%s_%s_img.jpg", company, site, location);
         File file = new File(UPLOAD_DIR + company + "/" + site + "/" + location + "/" + filename);

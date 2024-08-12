@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public interface VehicleMasterRepository extends JpaRepository<VehicleMaster,Long> {
+public interface VehicleMasterRepository extends JpaRepository<VehicleMaster, Long> {
 
     @Query("SELECT DISTINCT v.id FROM VehicleMaster v WHERE v.vehicleNo = :vehicleNo")
     long findVehicleIdByVehicleNo(@Param("vehicleNo") String vehicleNo);
@@ -49,4 +49,7 @@ public interface VehicleMasterRepository extends JpaRepository<VehicleMaster,Lon
     LocalDate findVehicleFitnessById(@Param("vehicleId") long vehicleId);
 
     List<VehicleMaster> findAllByVehicleStatus(String status);
+
+    @Query("SELECT v.vehicleNo FROM VehicleMaster v WHERE v.vehicleStatus = :status")
+    List<String> findVehicleNoByVehicleStatus(String status);
 }
