@@ -11,6 +11,10 @@ import com.weighbridge.admin.repsitories.MaterialMasterRepository;
 import com.weighbridge.admin.repsitories.MaterialTypeMasterRepository;
 import com.weighbridge.admin.repsitories.TransporterMasterRepository;
 import com.weighbridge.admin.repsitories.VehicleMasterRepository;
+import com.weighbridge.gateuser.entities.GateEntryTransaction;
+import com.weighbridge.gateuser.repositories.GateEntryTransactionRepository;
+import com.weighbridge.weighbridgeoperator.entities.WeighmentTransaction;
+import com.weighbridge.weighbridgeoperator.repositories.WeighmentTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +43,12 @@ public class SalesProcessServiceImpl implements SalesProcessService {
 
     @Autowired
     MaterialTypeMasterRepository materialTypeMasterRepository;
+
+    @Autowired
+    GateEntryTransactionRepository gateEntryTransactionRepository;
+
+    @Autowired
+    WeighmentTransactionRepository weighmentTransactionRepository;
 
     /**
      * To process sale of the material with vehicle and transporter details
@@ -143,6 +153,14 @@ public class SalesProcessServiceImpl implements SalesProcessService {
             salesDetailBySalePassNo.setTransporterName(salesProcess.getTransporterName());
             salesDetailBySalePassNo.setConsignmentWeight(salesProcess.getConsignmentWeight());
             salesDetailBySalePassNo.setProductType(salesProcess.getProductType());
+            GateEntryTransaction byTpNo = gateEntryTransactionRepository.findByTpNo(salesProcess.getSalePassNo());
+            if(byTpNo!=null){
+                WeighmentTransaction byGateEntryTransactionTicketNo = weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTpNo.getTicketNo());
+                salesDetailBySalePassNo.setNetWeight(byGateEntryTransactionTicketNo!=null? String.valueOf(byGateEntryTransactionTicketNo.getNetWeight()) :"pending...");
+            }
+            else{
+                salesDetailBySalePassNo.setNetWeight("pending..");
+            }
             salesList.add(salesDetailBySalePassNo);
         }
         return salesList;

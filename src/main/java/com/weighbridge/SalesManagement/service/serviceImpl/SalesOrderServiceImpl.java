@@ -316,6 +316,8 @@ public class SalesOrderServiceImpl implements SalesOrderService {
             salesDashboardResponse.setProductName(bySaleOrderNo.getProductName());
             salesDashboardResponse.setBrokerName(bySaleOrderNo.getBrokerName());
             salesDashboardResponse.setProgressiveQty(bySaleOrderNo.getProgressiveQuantity());
+            salesDashboardResponse.setLumpsBalance(bySaleOrderNo.getLumps());
+            salesDashboardResponse.setFinesBalance(bySaleOrderNo.getFines());
             salesDashboardResponse.setBalanceQty(bySaleOrderNo.getBalanceQuantity());
             return salesDashboardResponse;
         }

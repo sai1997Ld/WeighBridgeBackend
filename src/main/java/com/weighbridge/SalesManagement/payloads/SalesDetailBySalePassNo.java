@@ -10,4 +10,5 @@ public class SalesDetailBySalePassNo {
     private String productType;
     private String transporterName;
     private String vehicleNo;
+    private String netWeight;
 }
