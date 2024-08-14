@@ -156,10 +156,10 @@ public class SalesProcessServiceImpl implements SalesProcessService {
             GateEntryTransaction byTpNo = gateEntryTransactionRepository.findByTpNo(salesProcess.getSalePassNo());
             if(byTpNo!=null){
                 WeighmentTransaction byGateEntryTransactionTicketNo = weighmentTransactionRepository.findByGateEntryTransactionTicketNo(byTpNo.getTicketNo());
-                salesDetailBySalePassNo.setNetWeight(byGateEntryTransactionTicketNo!=null? String.valueOf(byGateEntryTransactionTicketNo.getNetWeight()) :"pending...");
+                salesDetailBySalePassNo.setNetWeight(byGateEntryTransactionTicketNo!=null? String.valueOf(byGateEntryTransactionTicketNo.getNetWeight()) :"Pending...");
             }
             else{
-                salesDetailBySalePassNo.setNetWeight("pending..");
+                salesDetailBySalePassNo.setNetWeight("Pending..");
             }
             salesList.add(salesDetailBySalePassNo);
         }

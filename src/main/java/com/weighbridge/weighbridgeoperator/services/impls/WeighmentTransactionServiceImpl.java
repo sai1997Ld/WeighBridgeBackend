@@ -318,7 +318,7 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
                         response.setMaterialType((String) row[14]); // Set materialType for inbound
 
                     }
-
+                    response.setTpNo((String) row[15]);
                     response.setTransporterName((String) row[12]);
                     // Set other fields similarly
                     responses.add(response);
@@ -717,6 +717,7 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
             }
 
             weighmentTransactionResponse.setTransporterName(transporterMasterRepository.findTransporterNameByTransporterId(weighmentTransaction.getGateEntryTransaction().getTransporterId()));
+            weighmentTransactionResponse.setTpNo(weighmentTransaction.getGateEntryTransaction().getTpNo()!=null?weighmentTransaction.getGateEntryTransaction().getTpNo():"_");
             weighmentTransactionResponses.add(weighmentTransactionResponse);
         }
         long count = weighmentTransactionRepository.countCompletedTransactions();
@@ -725,5 +726,6 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
         weighbridgePageResponse.setTotalPages(count/ all.getSize());
         weighbridgePageResponse.setTotalElements(count);
         return weighbridgePageResponse;
+
     }
 }

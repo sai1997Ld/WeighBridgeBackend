@@ -24,4 +24,5 @@ public class WeighmentTransactionResponse {
         private String transporterName;
         private String materialName;
         private String materialType;
+        private String tpNo;
 }
