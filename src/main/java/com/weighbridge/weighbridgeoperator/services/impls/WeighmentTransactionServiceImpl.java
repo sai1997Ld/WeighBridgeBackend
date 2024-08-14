@@ -520,13 +520,17 @@ public class WeighmentTransactionServiceImpl implements WeighmentTransactionServ
                     .orElseThrow(() -> new IllegalStateException("No roles found for userId: " + userId));
 
 
-            Map<String, byte[]> inMap = cameraViewService.downloadImages(ticketNo, role, gateEntryTransaction.getCompanyId(), gateEntryTransaction.getSiteId(),"ENTRY");
-            Map<String, byte[]> outMap = cameraViewService.downloadImages(ticketNo, role, gateEntryTransaction.getCompanyId(), gateEntryTransaction.getSiteId(),"EXIT");
+            Map<String, byte[]> inMap = cameraViewService.downloadImagesFromServerPath(ticketNo, role, gateEntryTransaction.getCompanyId(), gateEntryTransaction.getSiteId(),"ENTRY");
+            Map<String, byte[]> outMap = cameraViewService.downloadImagesFromServerPath(ticketNo, role, gateEntryTransaction.getCompanyId(), gateEntryTransaction.getSiteId(),"EXIT");
 
             TicketImageResponse ticketImageResponse = new TicketImageResponse();
             ticketImageResponse.setTicketResponse(ticketResponse);
-            ticketImageResponse.setInImagesMap(inMap);
-            ticketImageResponse.setOutImagesMap(outMap);
+            if(inMap!=null) {
+                ticketImageResponse.setInImagesMap(inMap);
+            }
+            if(outMap!=null) {
+                ticketImageResponse.setOutImagesMap(outMap);
+            }
             return ticketImageResponse;
         }
     }

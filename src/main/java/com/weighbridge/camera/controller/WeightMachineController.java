@@ -1,9 +1,5 @@
 package com.weighbridge.camera.controller;
 
-import com.weighbridge.admin.entities.CompanyMaster;
-import com.weighbridge.admin.entities.UserMaster;
-import com.weighbridge.admin.exceptions.ResourceNotFoundException;
-import com.weighbridge.admin.repsitories.UserMasterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -14,14 +10,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.weighbridge.admin.entities.UserMaster;
+import com.weighbridge.admin.exceptions.ResourceNotFoundException;
+import com.weighbridge.admin.repsitories.UserMasterRepository;
+
 @RestController
 @RequestMapping("/api/weight")
 public class WeightMachineController
 {
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    private String lastSentWeight = "";
 
     @Autowired
     private UserMasterRepository userMasterRepository;
@@ -36,12 +34,11 @@ public class WeightMachineController
         if(user==null){
             throw new ResourceNotFoundException("User Id is not found: "+userId);
         }
-        String companyId = user.getCompany().getCompanyId();
-        String siteId = user.getSite().getSiteId();
-        String latestWeight = fetchLatestWeightFromDatabase(companyId, siteId);
+        String company = user.getCompany().getCompanyId();
+        String site = user.getSite().getSiteId();
+        String latestWeight = fetchLatestWeightFromDatabase(company, site);
 
-        if (latestWeight != null && !latestWeight.equals(lastSentWeight)) {
-            lastSentWeight = latestWeight;
+        if (latestWeight != null ) {
             return ResponseEntity.ok(latestWeight);
         } else {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

@@ -584,10 +584,8 @@ public class GateEntryTransactionServiceImpl implements GateEntryTransactionServ
                     .orElseThrow(() -> new IllegalStateException("No roles found for userId: " + userId));
 
 
-            Map<String, byte[]> stringMap = cameraViewService.downloadImages(transaction.getTicketNo(), role, userSite, userCompany,"ENTRY");
-            if(stringMap==null){
-
-            }else{
+            Map<String, byte[]> stringMap = cameraViewService.downloadImagesFromServerPath(transaction.getTicketNo(), role, userSite, userCompany,"ENTRY");
+            if(stringMap!=null){
                 response.setImagesMap(stringMap);
             }
 /*            QualityTransaction byTicketNo = qualityTransactionRepository.findByTicketNo(transaction.getTicketNo());
